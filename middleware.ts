@@ -137,8 +137,8 @@ export default withAuth(
         const path = req.nextUrl.pathname
         
         // Публичные страницы sch1 (главная, game, ministry, ratings, login)
-        const publicPages = ['/sch1/game', '/sch1/ratings', '/sch1/login']
-        const isPublicPage = publicPages.some(page => path.startsWith(page)) || 
+        const publicPages = ['/sch1/game', '/sch1/ratings', '/sch1/login', '/sch1']
+        const isPublicPage = publicPages.some(page => path === page || path.startsWith(page + '/')) || 
                             path.startsWith('/sch1/ministry/')
         
         // Если это публичная страница, разрешаем доступ

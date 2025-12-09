@@ -52,8 +52,17 @@ export async function POST(
       return NextResponse.json({ error: 'Задача не на проверке' }, { status: 400 })
     }
 
-    // Начисляем EP
-    if (instance.task.epReward && instance.task.epReward > 0) {
+    // Проверяем, не начислялись ли уже баллы (защита от дублирования)
+    const existingEP = await prisma.eventPoint.findFirst({
+      where: {
+        userId: instance.user.id,
+        eventId: instance.taskId,
+        reason: { contains: instance.task.title },
+      },
+    })
+
+    // Начисляем EP только если еще не начислялись
+    if (!existingEP && instance.task.epReward && instance.task.epReward > 0) {
       await prisma.eventPoint.create({
         data: {
           userId: instance.user.id,

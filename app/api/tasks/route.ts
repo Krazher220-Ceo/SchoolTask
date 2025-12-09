@@ -143,6 +143,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Для задач ученикам министерство не требуется, но EP обязателен
+    // Для общественных задач министерство опционально (может быть для всех или для конкретного министерства)
     if (data.targetAudience === 'STUDENT' || data.targetAudience === 'PUBLIC') {
       if (!data.epReward || data.epReward <= 0) {
         return NextResponse.json({ 
@@ -152,6 +153,7 @@ export async function POST(request: NextRequest) {
       // Общественные задачи всегда PUBLIC типа
       if (data.targetAudience === 'PUBLIC') {
         data.taskType = 'PUBLIC'
+        // Для общественных задач министерство опционально (null = для всех, конкретное = для министерства)
       }
     }
 
