@@ -48,7 +48,7 @@ model User {
   publicTaskInstances          PublicTaskInstance[]
   reviewedRegistrationRequests RegistrationRequest[]  @relation("RegistrationRequestReviewer")
   reviewedPublicTaskInstances  PublicTaskInstance[]   @relation("PublicTaskInstanceReviewer")
-  eventsCreated                Event[]
+  eventsCreated                Event[]                 @relation("EventCreatedBy")
 
   @@index([email])
   @@index([telegramId])

@@ -53,14 +53,9 @@ export default function PortfolioPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="text-center mb-12">
           <h1 className="text-5xl font-bold text-gray-900 mb-4">Портфолио проектов</h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-4">
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
             Реализованные проекты и мероприятия, которые изменили жизнь школы
           </p>
-          <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 max-w-2xl mx-auto">
-            <p className="text-yellow-800 text-sm">
-              ⚠️ Страница находится в разработке. Полное портфолио с более чем 10+ IT проектами будет доступно в ближайшее время.
-            </p>
-          </div>
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
