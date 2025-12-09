@@ -48,8 +48,9 @@ model User {
   publicTaskInstances          PublicTaskInstance[]
   reviewedRegistrationRequests RegistrationRequest[]  @relation("RegistrationRequestReviewer")
   reviewedPublicTaskInstances  PublicTaskInstance[]   @relation("PublicTaskInstanceReviewer")
-  eventsCreated                Event[]                 @relation("EventCreatedBy")
+  eventsCreated                Event[]                @relation("EventCreatedBy")
   telegramLinkCodes            TelegramLinkCode[]
+  assignedQuests               AssignedQuest[]
 
   @@index([email])
   @@index([telegramId])
@@ -238,14 +239,36 @@ model Quest {
   id          String    @id @default(cuid())
   name        String
   description String
-  type        String // DAILY, WEEKLY, SEASONAL, EVENT
-  xpReward    Int
+  type        String // DAILY, WEEKLY, MONTHLY, SEASONAL, EVENT
+  xpReward    Int       @default(0) // Для участников парламента
+  epReward    Int       @default(0) // Для учеников
   condition   String // JSON условие
   isActive    Boolean   @default(true)
   startsAt    DateTime?
   endsAt      DateTime?
+  createdAt   DateTime  @default(now())
 
-  progress QuestProgress[]
+  progress       QuestProgress[]
+  assignedQuests AssignedQuest[]
+}
+
+// Назначенные задания ученикам (для отслеживания случайных заданий)
+model AssignedQuest {
+  id          String    @id @default(cuid())
+  questId     String
+  userId      String
+  assignedAt  DateTime  @default(now())
+  period      String // 'daily', 'weekly', 'monthly' - для группировки
+  periodDate  DateTime // Дата периода (для ежедневных - дата дня, для недельных - начало недели, для месячных - начало месяца)
+  completed   Boolean   @default(false)
+  completedAt DateTime?
+
+  quest Quest @relation(fields: [questId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([questId, userId, periodDate]) // Одно задание не может быть назначено дважды в один период
+  @@index([userId, period, periodDate])
+  @@index([period, periodDate])
 }
 
 // Прогресс по квестам
@@ -296,9 +319,9 @@ model Event {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
-  createdBy       User     @relation("EventCreatedBy", fields: [createdById], references: [id])
-  participants    EventParticipant[]
-  photos          String? // JSON массив ссылок
+  createdBy    User               @relation("EventCreatedBy", fields: [createdById], references: [id])
+  participants EventParticipant[]
+  photos       String? // JSON массив ссылок
 }
 
 // Участники мероприятий
@@ -430,23 +453,23 @@ model PublicTaskInstance {
 
 // Статистика для главной страницы
 model SiteStats {
-  id                String   @id @default(cuid())
-  key               String   @unique // 'events_count', 'members_count', 'ideas_count'
-  value             String   // Значение (может быть число или текст)
-  description       String?  // Описание
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  id          String   @id @default(cuid())
+  key         String   @unique // 'events_count', 'members_count', 'ideas_count'
+  value       String // Значение (может быть число или текст)
+  description String? // Описание
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 // Коды подтверждения для привязки Telegram аккаунта
 model TelegramLinkCode {
-  id        String   @id @default(cuid())
-  userId    String   // ID пользователя на сайте
-  telegramId String  // Telegram ID пользователя
-  code      String   // 6-значный код подтверждения
-  expiresAt DateTime // Время истечения (10 минут)
-  used      Boolean  @default(false)
-  createdAt DateTime @default(now())
+  id         String   @id @default(cuid())
+  userId     String // ID пользователя на сайте
+  telegramId String // Telegram ID пользователя
+  code       String // 6-значный код подтверждения
+  expiresAt  DateTime // Время истечения (10 минут)
+  used       Boolean  @default(false)
+  createdAt  DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 

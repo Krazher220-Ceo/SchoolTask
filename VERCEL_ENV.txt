@@ -1,0 +1,47 @@
+# Environment Variables для Vercel
+# Скопируйте эти переменные в настройки проекта Vercel → Settings → Environment Variables
+
+# ============================================
+# ОБЯЗАТЕЛЬНЫЕ ПЕРЕМЕННЫЕ
+# ============================================
+
+# Database (замените на вашу базу данных)
+DATABASE_URL=postgresql://user:password@host:5432/dbname?sslmode=require
+
+# NextAuth (ВАЖНО: сгенерируйте новый секрет!)
+# Генерация: openssl rand -base64 32
+NEXTAUTH_URL=https://sch1.vercel.app
+NEXTAUTH_SECRET=your-very-strong-secret-key-minimum-32-characters-long
+
+# Security
+ALLOWED_ORIGINS=https://sch1.vercel.app,https://www.sch1.vercel.app
+NODE_ENV=production
+
+# ============================================
+# ОПЦИОНАЛЬНЫЕ ПЕРЕМЕННЫЕ
+# ============================================
+
+# PostgreSQL (если используется альтернативный URL)
+# POSTGRES_URL=postgresql://user:password@host:5432/dbname?sslmode=require
+
+# Prisma Accelerate (для ускорения запросов)
+# PRISMA_DATABASE_URL=prisma+postgres://accelerate.prisma-data.net/?api_key=your_api_key
+
+# Google Forms (если используется)
+# GOOGLE_FORMS_JOIN_LINK=https://forms.google.com/your-form-link
+# GOOGLE_FORMS_IDEA_LINK=https://forms.google.com/your-idea-form-link
+
+# Telegram Bot (если используется)
+# TELEGRAM_BOT_TOKEN=your-telegram-bot-token
+# TELEGRAM_WEBHOOK_URL=https://sch1.vercel.app/api/telegram/webhook
+
+# ============================================
+# ИНСТРУКЦИИ
+# ============================================
+# 1. Замените sch1.vercel.app на ваш реальный домен
+# 2. Сгенерируйте NEXTAUTH_SECRET: openssl rand -base64 32
+# 3. Настройте базу данных (Vercel Postgres или внешняя)
+# 4. Добавьте все переменные в Vercel → Settings → Environment Variables
+# 5. Выберите Environment: Production, Preview, Development (или все)
+# 6. После деплоя выполните: npx prisma migrate deploy
+
