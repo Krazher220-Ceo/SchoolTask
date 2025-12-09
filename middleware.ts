@@ -1,22 +1,123 @@
 import { withAuth } from 'next-auth/middleware'
 import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
+import {
+  rateLimit,
+  isSuspiciousRequest,
+  isSuspiciousUserAgent,
+  validateRequestSize,
+  addSecurityHeaders,
+  validateCORS,
+  trackRequestStart,
+  validateRequestTimeout,
+  clearRequestTracking,
+  createRateLimitResponse,
+} from '@/lib/security'
 
-export default withAuth(
+// Основной middleware для защиты
+function securityMiddleware(req: NextRequest) {
+  const path = req.nextUrl.pathname
+  const identifier = trackRequestStart(req)
+
+  // Проверка на подозрительные запросы
+  if (isSuspiciousRequest(req)) {
+    clearRequestTracking(identifier)
+    return NextResponse.json(
+      { error: 'Запрос отклонен по соображениям безопасности' },
+      { status: 400 }
+    )
+  }
+
+  // Проверка User-Agent (только для API)
+  if (path.startsWith('/api/') && isSuspiciousUserAgent(req)) {
+    clearRequestTracking(identifier)
+    return NextResponse.json(
+      { error: 'Доступ запрещен' },
+      { status: 403 }
+    )
+  }
+
+  // Проверка размера запроса
+  if (!validateRequestSize(req, 5 * 1024 * 1024)) { // 5MB максимум
+    clearRequestTracking(identifier)
+    return NextResponse.json(
+      { error: 'Размер запроса превышает допустимый лимит' },
+      { status: 413 }
+    )
+  }
+
+  // Проверка таймаута запроса
+  if (!validateRequestTimeout(identifier, 30000)) { // 30 секунд
+    clearRequestTracking(identifier)
+    return NextResponse.json(
+      { error: 'Превышено время ожидания запроса' },
+      { status: 408 }
+    )
+  }
+
+  // Rate limiting для API
+  if (path.startsWith('/api/')) {
+    // Более строгий лимит для API
+    const apiLimit = rateLimit(req, {
+      limit: path.startsWith('/api/auth') ? 5 : 100, // 5 запросов для auth, 100 для остальных
+      window: 60 * 1000, // 1 минута
+    })
+
+    if (!apiLimit.success) {
+      clearRequestTracking(identifier)
+      return createRateLimitResponse(apiLimit.limit, apiLimit.remaining, apiLimit.reset)
+    }
+  }
+
+  // Rate limiting для страниц
+  if (path.startsWith('/sch1/')) {
+    const pageLimit = rateLimit(req, {
+      limit: 200, // 200 запросов
+      window: 60 * 1000, // 1 минута
+    })
+
+    if (!pageLimit.success) {
+      clearRequestTracking(identifier)
+      return createRateLimitResponse(pageLimit.limit, pageLimit.remaining, pageLimit.reset)
+    }
+  }
+
+  // CORS проверка для API
+  if (path.startsWith('/api/') && !validateCORS(req)) {
+    clearRequestTracking(identifier)
+    return NextResponse.json(
+      { error: 'CORS: Доступ запрещен' },
+      { status: 403 }
+    )
+  }
+
+  return null // Продолжаем обработку
+}
+
+// Auth middleware wrapper
+const authMiddlewareWrapper = withAuth(
   function middleware(req) {
     const token = req.nextauth.token
     const path = req.nextUrl.pathname
 
     // Если пользователь авторизован и пытается зайти на публичную страницу sch1, редиректим в dashboard
     if (token && path === '/sch1') {
-      return NextResponse.redirect(new URL('/sch1/dashboard', req.url))
+      const response = NextResponse.redirect(new URL('/sch1/dashboard', req.url))
+      addSecurityHeaders(response)
+      return response
     }
 
     // Если пользователь авторизован и пытается зайти на login, редиректим в dashboard
     if (token && path === '/sch1/login') {
-      return NextResponse.redirect(new URL('/sch1/dashboard', req.url))
+      const response = NextResponse.redirect(new URL('/sch1/dashboard', req.url))
+      addSecurityHeaders(response)
+      return response
     }
 
-    return NextResponse.next()
+    // Применяем security headers
+    const response = NextResponse.next()
+    addSecurityHeaders(response)
+    return response
   },
   {
     callbacks: {
@@ -44,9 +145,43 @@ export default withAuth(
   }
 )
 
+// Главный middleware
+export default function middleware(req: NextRequest) {
+  const identifier = trackRequestStart(req)
+
+  // Сначала проверяем безопасность
+  const securityResponse = securityMiddleware(req)
+  if (securityResponse) {
+    clearRequestTracking(identifier)
+    return securityResponse
+  }
+
+  // Затем применяем auth middleware для страниц sch1
+  if (req.nextUrl.pathname.startsWith('/sch1/')) {
+    try {
+      const response = authMiddlewareWrapper(req)
+      clearRequestTracking(identifier)
+      return response
+    } catch (error) {
+      clearRequestTracking(identifier)
+      const response = NextResponse.next()
+      addSecurityHeaders(response)
+      return response
+    }
+  }
+
+  // Для остальных путей просто добавляем security headers
+  const response = NextResponse.next()
+  addSecurityHeaders(response)
+  clearRequestTracking(identifier)
+
+  return response
+}
+
 export const config = {
   matcher: [
     '/sch1/:path*',
+    '/api/:path*',
   ],
 }
 

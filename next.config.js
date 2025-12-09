@@ -4,6 +4,50 @@ const nextConfig = {
   images: {
     domains: ['localhost'],
   },
+  // Security headers
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          {
+            key: 'X-DNS-Prefetch-Control',
+            value: 'on'
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff'
+          },
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY'
+          },
+          {
+            key: 'X-XSS-Protection',
+            value: '1; mode=block'
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'strict-origin-when-cross-origin'
+          },
+          {
+            key: 'Permissions-Policy',
+            value: 'geolocation=(), microphone=(), camera=()'
+          },
+          {
+            key: 'Content-Security-Policy',
+            value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none';"
+          },
+        ],
+      },
+    ]
+  },
+  // Защита от перечисления путей
+  poweredByHeader: false,
+  // Ограничение размера тела запроса
+  serverRuntimeConfig: {
+    maxRequestSize: '5mb',
+  },
   webpack: (config, { isServer, dev }) => {
     // Исправление проблем с динамическими импортами
     if (!isServer) {
