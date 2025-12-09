@@ -1,5 +1,5 @@
 {
-  "buildCommand": "npx prisma generate && (npx prisma migrate resolve --applied 20251209055319_init 2>/dev/null || true) && npx prisma migrate deploy && npm run build",
+  "buildCommand": "npx prisma generate && (npx prisma migrate deploy 2>&1 | grep -q 'P3019' && npx prisma migrate resolve --applied 20251209055319_init && npx prisma migrate deploy || npx prisma migrate deploy) && npm run build",
   "devCommand": "npm run dev",
   "installCommand": "npm install",
   "framework": "nextjs",
