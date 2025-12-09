@@ -312,6 +312,13 @@ export default async function AdminPage() {
         >
           Управление статистикой
         </Link>
+        <Link
+          href="/sch1/admin/telegram"
+          className="bg-cyan-600 text-white px-6 py-3 rounded-lg hover:bg-cyan-700 transition font-semibold text-center flex items-center justify-center"
+        >
+          <MessageCircle className="h-5 w-5 mr-2" />
+          Настройка Telegram
+        </Link>
           </div>
         </section>
       </div>
