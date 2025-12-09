@@ -156,12 +156,13 @@ export default function TasksAdminClient({ tasks }: { tasks: any[] }) {
             ))}
           </tbody>
         </table>
-      </div>
-      {tasks.length === 0 && (
-        <div className="text-center py-12 text-gray-500">
-          <p>Нет задач</p>
         </div>
-      )}
+        {tasks.length === 0 && (
+          <div className="text-center py-12 text-gray-500">
+            <p>Нет задач</p>
+          </div>
+        )}
+      </div>
     </div>
   )
 }
