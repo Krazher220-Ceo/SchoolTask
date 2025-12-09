@@ -48,6 +48,7 @@ model User {
   publicTaskInstances          PublicTaskInstance[]
   reviewedRegistrationRequests RegistrationRequest[]  @relation("RegistrationRequestReviewer")
   reviewedPublicTaskInstances  PublicTaskInstance[]   @relation("PublicTaskInstanceReviewer")
+  eventsCreated                Event[]
 
   @@index([email])
   @@index([telegramId])
@@ -294,8 +295,9 @@ model Event {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
-  participants EventParticipant[]
-  photos       String? // JSON массив ссылок
+  createdBy       User     @relation("EventCreatedBy", fields: [createdById], references: [id])
+  participants    EventParticipant[]
+  photos          String? // JSON массив ссылок
 }
 
 // Участники мероприятий

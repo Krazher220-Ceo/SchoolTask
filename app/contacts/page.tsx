@@ -30,9 +30,9 @@ export default function ContactsPage() {
           <div className="bg-white rounded-xl shadow-lg p-6">
             <Mail className="h-8 w-8 text-primary-600 mb-4" />
             <h3 className="text-xl font-bold text-gray-900 mb-2">Email</h3>
-            <p className="text-gray-600 mb-4">alikhan@example.com</p>
+            <p className="text-gray-600 mb-4">Krazher220@icloud.com</p>
             <a
-              href="mailto:alikhan@example.com"
+              href="mailto:Krazher220@icloud.com"
               className="text-primary-600 hover:text-primary-700 font-semibold"
             >
               Написать письмо →
@@ -42,14 +42,26 @@ export default function ContactsPage() {
           <div className="bg-white rounded-xl shadow-lg p-6">
             <MessageCircle className="h-8 w-8 text-primary-600 mb-4" />
             <h3 className="text-xl font-bold text-gray-900 mb-2">Telegram</h3>
-            <p className="text-gray-600 mb-4">@alikhan</p>
+            <p className="text-gray-600 mb-4">@krazher220</p>
             <a
-              href="https://t.me/alikhan"
+              href="https://t.me/krazher220"
               target="_blank"
               rel="noopener noreferrer"
               className="text-primary-600 hover:text-primary-700 font-semibold"
             >
               Написать в Telegram →
+            </a>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <MessageCircle className="h-8 w-8 text-primary-600 mb-4" />
+            <h3 className="text-xl font-bold text-gray-900 mb-2">Телефон</h3>
+            <p className="text-gray-600 mb-4">+7 705 669 76 77</p>
+            <a
+              href="tel:+77056697677"
+              className="text-primary-600 hover:text-primary-700 font-semibold"
+            >
+              Позвонить →
             </a>
           </div>
         </div>

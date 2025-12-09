@@ -104,6 +104,22 @@ export default async function ParliamentHome() {
     })
   )
 
+  // Загружаем последние мероприятия
+  const recentEvents = await prisma.event.findMany({
+    where: {
+      status: {
+        in: ['UPCOMING', 'IN_PROGRESS'],
+      },
+    },
+    orderBy: {
+      date: 'asc',
+    },
+    take: 6,
+    include: {
+      participants: true,
+    },
+  })
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-blue-50">
       {/* Шапка */}
@@ -243,6 +259,69 @@ export default async function ParliamentHome() {
             <div className="text-sm text-gray-600">Выполнено задач</div>
           </div>
         </div>
+
+        {/* Недавние мероприятия */}
+        {recentEvents.length > 0 && (
+          <div className="mb-12">
+            <h3 className="text-3xl font-bold text-gray-900 mb-6 text-center">
+              Недавние мероприятия
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {recentEvents.map((event) => {
+                const ministry = ministries.find(m => m.enum === event.ministry)
+                const Icon = ministry?.icon || Calendar
+                const ministryColor = ministry?.color || 'bg-gray-500'
+                return (
+                  <div key={event.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition">
+                    <div className={`${ministryColor} h-32 flex items-center justify-center`}>
+                      <Icon className="h-12 w-12 text-white" />
+                    </div>
+                    <div className="p-6">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm font-semibold text-primary-600">{event.category}</span>
+                        <span className={`text-xs px-2 py-1 rounded ${
+                          event.status === 'UPCOMING' ? 'bg-blue-100 text-blue-800' :
+                          event.status === 'IN_PROGRESS' ? 'bg-green-100 text-green-800' :
+                          'bg-gray-100 text-gray-800'
+                        }`}>
+                          {event.status === 'UPCOMING' ? 'Предстоит' :
+                           event.status === 'IN_PROGRESS' ? 'В процессе' :
+                           event.status}
+                        </span>
+                      </div>
+                      <h4 className="text-xl font-bold text-gray-900 mb-2">{event.title}</h4>
+                      <p className="text-gray-600 text-sm mb-4 line-clamp-2">{event.description}</p>
+                      <div className="space-y-2 text-sm text-gray-500">
+                        <div className="flex items-center">
+                          <Calendar className="h-4 w-4 mr-2" />
+                          {new Date(event.date).toLocaleDateString('ru-RU', {
+                            day: 'numeric',
+                            month: 'long',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
+                        </div>
+                        {event.location && (
+                          <div className="flex items-center">
+                            <span className="mr-2">📍</span>
+                            {event.location}
+                          </div>
+                        )}
+                        {event.maxParticipants && (
+                          <div className="flex items-center">
+                            <Users className="h-4 w-4 mr-2" />
+                            {event.participants.length} / {event.maxParticipants} участников
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Как присоединиться */}
         <div className="bg-gradient-to-r from-primary-600 to-indigo-600 rounded-2xl shadow-xl p-8 text-white mb-12">

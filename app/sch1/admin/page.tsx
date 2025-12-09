@@ -300,6 +300,12 @@ export default async function AdminPage() {
         >
           Отчеты по паролям
         </Link>
+        <Link
+          href="/sch1/admin/events"
+          className="bg-pink-600 text-white px-6 py-3 rounded-lg hover:bg-pink-700 transition font-semibold text-center"
+        >
+          Управление мероприятиями
+        </Link>
           </div>
         </section>
       </div>

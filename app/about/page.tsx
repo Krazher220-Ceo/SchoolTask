@@ -24,8 +24,8 @@ export default function AboutPage() {
             <div className="w-32 h-32 bg-gradient-to-br from-primary-400 to-indigo-600 rounded-full mx-auto mb-6 flex items-center justify-center">
               <Users className="h-16 w-16 text-white" />
             </div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">Алихан</h1>
-            <p className="text-xl text-gray-600">Председатель Школьного Парламента</p>
+            <h1 className="text-4xl font-bold text-gray-900 mb-2">Кабдуалы Алихан Аязбекұлы</h1>
+            <p className="text-xl text-gray-600">Председатель Школьного Парламента • 9 класс, литер Д</p>
           </div>
         </section>
 
@@ -57,8 +57,9 @@ export default function AboutPage() {
               <GraduationCap className="h-8 w-8 text-primary-600 flex-shrink-0 mt-1" />
               <div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">Образование</h3>
-                <p className="text-gray-600">Ученик 11 класса</p>
-                <p className="text-gray-600">Специализация: [укажите вашу специализацию]</p>
+                <p className="text-gray-600">Ученик 9 класса, литер Д</p>
+                <p className="text-gray-600">Специализация: IT (Информационные технологии)</p>
+                <p className="text-gray-600">КГУ «Школа-лицей №1 отдела образования города Костаная»</p>
               </div>
             </div>
             <div className="flex items-start space-x-4">
@@ -67,9 +68,9 @@ export default function AboutPage() {
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">Достижения</h3>
                 <ul className="list-disc list-inside text-gray-600 space-y-1">
                   <li>Председатель Школьного Парламента</li>
-                  <li>Организатор 50+ мероприятий</li>
-                  <li>Лидер команды из 120+ участников</li>
-                  <li>Реализовано 200+ идей от учеников</li>
+                  <li>Более 10+ IT проектов в портфолио</li>
+                  <li>Специализация в области информационных технологий</li>
+                  <li>Организатор множества школьных мероприятий</li>
                 </ul>
               </div>
             </div>
@@ -109,14 +110,21 @@ export default function AboutPage() {
               <Mail className="h-6 w-6 text-primary-600" />
               <div>
                 <div className="font-semibold text-gray-900">Email</div>
-                <div className="text-gray-600">alikhan@example.com</div>
+                <div className="text-gray-600">Krazher220@icloud.com</div>
               </div>
             </div>
             <div className="flex items-center space-x-4">
               <MessageCircle className="h-6 w-6 text-primary-600" />
               <div>
                 <div className="font-semibold text-gray-900">Telegram</div>
-                <div className="text-gray-600">@alikhan</div>
+                <div className="text-gray-600">@krazher220</div>
+              </div>
+            </div>
+            <div className="flex items-center space-x-4">
+              <MessageCircle className="h-6 w-6 text-primary-600" />
+              <div>
+                <div className="font-semibold text-gray-900">Телефон</div>
+                <div className="text-gray-600">+7 705 669 76 77</div>
               </div>
             </div>
           </div>

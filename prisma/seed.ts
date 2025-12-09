@@ -7,7 +7,7 @@ async function main() {
   console.log('🌱 Начинаем заполнение базы данных...')
 
   // Удаляем всех пользователей кроме админа
-  const adminEmail = 'alikhan@sch1.kz'
+  const adminEmail = 'Krazher220@icloud.com'
   
   // Получаем ID админа, если он существует
   const existingAdmin = await prisma.user.findUnique({
@@ -97,20 +97,22 @@ async function main() {
     where: { email: adminEmail },
     update: {
       password: hashedPassword,
-      name: 'Кабдуалы Алихан',
+      name: 'Кабдуалы Алихан Аязбекұлы',
       role: 'ADMIN',
-      class: '11',
-      classLetter: null,
-      fullClass: '11',
+      class: '9',
+      classLetter: 'Д',
+      fullClass: '9Д',
+      telegramUsername: 'krazher220',
     },
     create: {
       email: adminEmail,
       password: hashedPassword,
-      name: 'Кабдуалы Алихан',
+      name: 'Кабдуалы Алихан Аязбекұлы',
       role: 'ADMIN',
-      class: '11',
-      classLetter: null,
-      fullClass: '11',
+      class: '9',
+      classLetter: 'Д',
+      fullClass: '9Д',
+      telegramUsername: 'krazher220',
       parliamentMember: {
         create: {
           ministry: 'INFORMATION',
@@ -170,7 +172,7 @@ async function main() {
 
   console.log('🎉 База данных успешно заполнена!')
   console.log('\n📝 Данные для входа:')
-  console.log('Email: alikhan@sch1.kz')
+  console.log('Email: Krazher220@icloud.com')
   console.log('Password: password123')
 }
 
