@@ -116,14 +116,6 @@ export default function LoginPage() {
               </Link>
             </div>
           </form>
-
-          <div className="mt-6 text-center text-sm text-gray-600">
-            <p>Тестовые данные для входа:</p>
-            <p className="mt-2 font-mono text-xs bg-gray-100 p-2 rounded">
-              Email: alikhan@sch1.kz<br />
-              Password: password123
-            </p>
-          </div>
         </div>
       </div>
     </div>
