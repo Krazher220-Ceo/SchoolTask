@@ -5,6 +5,8 @@ import { prisma } from '@/lib/prisma'
 import { z } from 'zod'
 import bcrypt from 'bcryptjs'
 
+export const dynamic = 'force-dynamic'
+
 const approveSchema = z.object({
   role: z.enum(['STUDENT', 'MEMBER', 'MINISTER']).default('STUDENT'),
   ministry: z.enum(['LAW_AND_ORDER', 'INFORMATION', 'SPORT', 'CARE']).optional().nullable(),

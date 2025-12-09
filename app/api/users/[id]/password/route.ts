@@ -5,6 +5,8 @@ import { prisma } from '@/lib/prisma'
 import { z } from 'zod'
 import bcrypt from 'bcryptjs'
 
+export const dynamic = 'force-dynamic'
+
 const resetPasswordSchema = z.object({
   newPassword: z.string().min(6).optional(), // Если не указан, генерируется автоматически
 })

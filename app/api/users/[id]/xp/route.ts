@@ -5,6 +5,8 @@ import { prisma } from '@/lib/prisma'
 import { z } from 'zod'
 import { getLevelFromXP } from '@/lib/utils'
 
+export const dynamic = 'force-dynamic'
+
 const awardXPSchema = z.object({
   amount: z.number().int().min(1),
   reason: z.string().optional(),

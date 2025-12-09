@@ -4,6 +4,8 @@ import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { z } from 'zod'
 
+export const dynamic = 'force-dynamic'
+
 const linkSchema = z.object({
   telegramId: z.string().min(1),
   telegramUsername: z.string().optional().nullable(),

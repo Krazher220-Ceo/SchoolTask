@@ -4,6 +4,8 @@ import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { calculateLevelFromEP, getRankFromEP } from '@/lib/utils'
 
+export const dynamic = 'force-dynamic'
+
 // POST - одобрить отчет ученика и начислить EP
 export async function POST(
   request: NextRequest,

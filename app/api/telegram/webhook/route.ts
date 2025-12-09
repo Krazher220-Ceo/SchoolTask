@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { handleTelegramMessage } from '@/telegram/bot'
 
+export const dynamic = 'force-dynamic'
+
 // POST - webhook для Telegram
 export async function POST(request: NextRequest) {
   try {
