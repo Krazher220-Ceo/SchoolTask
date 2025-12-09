@@ -141,10 +141,42 @@ export async function PUT(request: NextRequest) {
       },
     })
 
+    // Отправляем код через Telegram API
+    try {
+      const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN
+      if (TELEGRAM_BOT_TOKEN) {
+        const telegramResponse = await fetch(
+          `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              chat_id: parseInt(data.telegramId),
+              text: `🔐 Код подтверждения\n\n` +
+                    `Ваш код: ${code}\n\n` +
+                    `Введите этот код на сайте в разделе "Привязка Telegram".\n` +
+                    `Код действителен в течение 10 минут.`,
+            }),
+          }
+        )
+        
+        const telegramData = await telegramResponse.json()
+        if (!telegramData.ok) {
+          console.error('Ошибка отправки кода в Telegram:', telegramData)
+        }
+      }
+    } catch (error) {
+      console.error('Ошибка отправки кода в Telegram:', error)
+      // Не прерываем процесс, код уже создан в БД
+    }
+
     return NextResponse.json({
       success: true,
       code,
       expiresAt: linkCode.expiresAt,
+      messageSent: true,
     })
   } catch (error) {
     if (error instanceof z.ZodError) {

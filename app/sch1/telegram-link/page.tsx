@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Check, X, MessageCircle, Key, User } from 'lucide-react'
+import { ArrowLeft, Check, X, MessageCircle, Key, User, RefreshCw } from 'lucide-react'
 
 export default function TelegramLinkPage() {
   const router = useRouter()
@@ -58,7 +58,7 @@ export default function TelegramLinkPage() {
       }
 
       setCodeGenerated(true)
-      alert(`Код отправлен в Telegram бот! Проверьте сообщения от бота @${botUsername}`)
+      // Не показываем alert, показываем сообщение в UI
     } catch (error) {
       setError('Ошибка при генерации кода')
     } finally {
@@ -220,28 +220,44 @@ export default function TelegramLinkPage() {
                     </div>
                   </div>
                   {codeGenerated && (
-                    <div>
-                      <label className="block text-sm font-medium text-blue-900 mb-2">
-                        Код подтверждения (6 цифр)
-                      </label>
-                      <div className="flex space-x-2">
-                        <input
-                          type="text"
-                          value={code}
-                          onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                          placeholder="000000"
-                          maxLength={6}
-                          className="flex-1 px-4 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-center text-2xl tracking-widest"
-                        />
-                        <button
-                          onClick={handleVerifyCode}
-                          disabled={verifyingCode || code.length !== 6}
-                          className="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600 transition disabled:opacity-50 flex items-center"
-                        >
+                    <div className="space-y-3">
+                      <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                        <p className="text-green-800 text-sm flex items-center">
                           <Check className="h-4 w-4 mr-2" />
-                          {verifyingCode ? 'Проверка...' : 'Подтвердить'}
-                        </button>
+                          Код отправлен в Telegram! Проверьте сообщения от бота @{botUsername}
+                        </p>
                       </div>
+                      <div>
+                        <label className="block text-sm font-medium text-blue-900 mb-2">
+                          Код подтверждения (6 цифр)
+                        </label>
+                        <div className="flex space-x-2">
+                          <input
+                            type="text"
+                            value={code}
+                            onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                            placeholder="000000"
+                            maxLength={6}
+                            className="flex-1 px-4 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-center text-2xl tracking-widest"
+                          />
+                          <button
+                            onClick={handleVerifyCode}
+                            disabled={verifyingCode || code.length !== 6}
+                            className="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600 transition disabled:opacity-50 flex items-center"
+                          >
+                            <Check className="h-4 w-4 mr-2" />
+                            {verifyingCode ? 'Проверка...' : 'Подтвердить'}
+                          </button>
+                        </div>
+                      </div>
+                      <button
+                        onClick={handleGenerateCode}
+                        disabled={generatingCode}
+                        className="w-full bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition disabled:opacity-50 flex items-center justify-center text-sm"
+                      >
+                        <RefreshCw className="h-4 w-4 mr-2" />
+                        {generatingCode ? 'Отправка...' : 'Отправить код повторно'}
+                      </button>
                     </div>
                   )}
                 </div>
