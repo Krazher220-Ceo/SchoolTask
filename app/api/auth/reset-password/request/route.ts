@@ -45,13 +45,20 @@ export async function POST(request: NextRequest) {
 
     // Генерируем 6-значный код
     const code = Math.floor(100000 + Math.random() * 900000).toString()
+    const expiresAt = new Date()
+    expiresAt.setMinutes(expiresAt.getMinutes() + 10) // Код действителен 10 минут
 
-    // Сохраняем код в базе (можно использовать существующую таблицу или создать новую)
-    // Для простоты используем временное поле или создаем запись
-    await prisma.user.update({
-      where: { id: user.id },
+    // Удаляем старые коды для этого пользователя
+    await prisma.passwordResetCode.deleteMany({
+      where: { userId: user.id },
+    })
+
+    // Сохраняем новый код
+    await prisma.passwordResetCode.create({
       data: {
-        // Можно добавить поле passwordResetCode в схему, но пока используем временное решение
+        userId: user.id,
+        code,
+        expiresAt,
       },
     })
 
@@ -73,7 +80,6 @@ export async function POST(request: NextRequest) {
       message: 'Код отправлен на email или Telegram',
       // ВРЕМЕННО: для тестирования возвращаем код (удалить в продакшене!)
       code: code,
-      expiresAt: expiresAt.toISOString(),
     })
   } catch (error) {
     if (error instanceof z.ZodError) {
