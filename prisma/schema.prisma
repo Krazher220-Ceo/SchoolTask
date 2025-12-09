@@ -51,6 +51,7 @@ model User {
   eventsCreated                Event[]                @relation("EventCreatedBy")
   telegramLinkCodes            TelegramLinkCode[]
   assignedQuests               AssignedQuest[]
+  passwordResetCodes           PasswordResetCode[]
 
   @@index([email])
   @@index([telegramId])
@@ -399,6 +400,23 @@ model TelegramNotification {
 
   @@index([userId])
   @@index([sent])
+}
+
+// Коды восстановления пароля
+model PasswordResetCode {
+  id        String   @id @default(cuid())
+  userId    String
+  code      String   // 6-значный код
+  expiresAt DateTime // Время истечения (10 минут)
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, code])
+  @@index([userId])
+  @@index([code])
+  @@index([expiresAt])
 }
 
 // Заявки на регистрацию

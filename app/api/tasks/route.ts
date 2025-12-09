@@ -40,8 +40,10 @@ export async function GET(request: NextRequest) {
     if (assignedToId) where.assignedToId = assignedToId
     if (targetAudience) where.targetAudience = targetAudience
 
-    // Разделяем задачи: министерства видят только свои, ученики - только свои
-    if (session.user.role === 'STUDENT') {
+    // Админы видят все задачи
+    if (session.user.role === 'ADMIN') {
+      // Админы видят все задачи без ограничений
+    } else if (session.user.role === 'STUDENT') {
       // Обычные ученики видят только задачи для учеников и общественные (без министерств или для учеников)
       where.OR = [
         { targetAudience: 'STUDENT' },

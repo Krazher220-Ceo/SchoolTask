@@ -73,6 +73,7 @@ export async function POST(request: NextRequest) {
       message: 'Код отправлен на email или Telegram',
       // ВРЕМЕННО: для тестирования возвращаем код (удалить в продакшене!)
       code: code,
+      expiresAt: expiresAt.toISOString(),
     })
   } catch (error) {
     if (error instanceof z.ZodError) {

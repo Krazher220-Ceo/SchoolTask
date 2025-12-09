@@ -35,11 +35,27 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Пользователь не найден' }, { status: 404 })
     }
 
-    // В реальном приложении здесь должна быть проверка кода из базы данных
-    // Для демонстрации просто проверяем формат кода
-    if (!/^\d{6}$/.test(data.code)) {
-      return NextResponse.json({ error: 'Неверный формат кода' }, { status: 400 })
+    // Проверяем код в базе данных
+    const resetCode = await prisma.passwordResetCode.findFirst({
+      where: {
+        userId: user.id,
+        code: data.code,
+        expiresAt: {
+          gt: new Date(), // Код еще не истек
+        },
+        used: false,
+      },
+    })
+
+    if (!resetCode) {
+      return NextResponse.json({ error: 'Неверный или истекший код' }, { status: 400 })
     }
+
+    // Помечаем код как использованный
+    await prisma.passwordResetCode.update({
+      where: { id: resetCode.id },
+      data: { used: true },
+    })
 
     // Хешируем новый пароль
     const hashedPassword = await bcrypt.hash(data.newPassword, 10)
