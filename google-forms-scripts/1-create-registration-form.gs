@@ -59,7 +59,7 @@ function createRegistrationForm() {
   loginItem.setRequired(true);
   var loginValidation = FormApp.createTextValidation()
     .setHelpText('Логин должен содержать минимум 3 символа')
-    .requireTextLengthGreaterThan(2)
+    .requireTextMatchesPattern('.{3,}')
     .build();
   loginItem.setValidation(loginValidation);
   
