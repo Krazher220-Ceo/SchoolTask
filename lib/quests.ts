@@ -240,3 +240,14 @@ export async function getAllQuestsForUser(userId: string) {
   }
 }
 
+/**
+ * Убедиться, что все квесты назначены пользователю
+ */
+export async function ensureQuestsAssigned(userId: string) {
+  await Promise.all([
+    getDailyQuestsForUser(userId),
+    getWeeklyQuestsForUser(userId),
+    getMonthlyQuestsForUser(userId),
+  ])
+}
+
