@@ -151,7 +151,12 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'Неверные данные', details: error.errors }, { status: 400 })
     }
     console.error('Ошибка при генерации кода:', error)
-    return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 })
+    const errorMessage = error instanceof Error ? error.message : 'Неизвестная ошибка'
+    const errorName = error instanceof Error ? error.name : 'UnknownError'
+    return NextResponse.json({ 
+      error: 'Ошибка сервера',
+      details: process.env.NODE_ENV === 'development' ? { message: errorMessage, name: errorName } : undefined
+    }, { status: 500 })
   }
 }
 
@@ -228,7 +233,12 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: 'Неверные данные', details: error.errors }, { status: 400 })
     }
     console.error('Ошибка при подтверждении кода:', error)
-    return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 })
+    const errorMessage = error instanceof Error ? error.message : 'Неизвестная ошибка'
+    const errorName = error instanceof Error ? error.name : 'UnknownError'
+    return NextResponse.json({ 
+      error: 'Ошибка сервера',
+      details: process.env.NODE_ENV === 'development' ? { message: errorMessage, name: errorName } : undefined
+    }, { status: 500 })
   }
 }
 
