@@ -88,10 +88,49 @@ function createRegistrationForm() {
   // Добавляем разделитель
   form.addPageBreakItem();
   
+  // Секция: Информация о деятельности
+  var activityHeader = form.addSectionHeaderItem();
+  activityHeader.setTitle('О вашей деятельности и интересах');
+  activityHeader.setHelpText('Расскажите нам о себе, своих интересах и том, чем вы хотели бы заниматься в парламенте');
+  
+  // 8. Министерство
+  var ministryItem = form.addMultipleChoiceItem();
+  ministryItem.setTitle('В какое министерство вы хотели бы вступить?');
+  ministryItem.setHelpText('Выберите министерство, которое вам наиболее интересно. Если вы не уверены, выберите "Не определился(ась)"');
+  ministryItem.setChoices([
+    ministryItem.createChoice('Права и порядка'),
+    ministryItem.createChoice('Информации'),
+    ministryItem.createChoice('Спорта'),
+    ministryItem.createChoice('Заботы'),
+    ministryItem.createChoice('Не определился(ась)')
+  ]);
+  ministryItem.setRequired(true);
+  
+  // 9. Описание деятельности
+  var activityItem = form.addParagraphTextItem();
+  activityItem.setTitle('Опишите свою деятельность и интересы');
+  activityItem.setHelpText('Расскажите о том, чем вы занимаетесь, что вас интересует, в каких школьных мероприятиях вы участвовали, какие у вас хобби и увлечения. Это поможет нам лучше понять ваши интересы и возможности.');
+  activityItem.setRequired(true);
+  
+  // 10. Чем хочет заниматься
+  var goalsItem = form.addParagraphTextItem();
+  goalsItem.setTitle('Чем вы хотели бы заниматься в парламенте?');
+  goalsItem.setHelpText('Опишите, какие задачи и проекты вас интересуют, что вы хотели бы реализовать, какие идеи у вас есть. Чем конкретно вы готовы заниматься в выбранном министерстве?');
+  goalsItem.setRequired(true);
+  
+  // 11. Достижения
+  var achievementsItem = form.addParagraphTextItem();
+  achievementsItem.setTitle('Ваши достижения');
+  achievementsItem.setHelpText('Расскажите о ваших достижениях: участие в олимпиадах, конкурсах, соревнованиях, проектах, волонтерской деятельности, школьных мероприятиях и т.д. Укажите награды, грамоты, дипломы (если есть).');
+  achievementsItem.setRequired(false);
+  
+  // Добавляем разделитель
+  form.addPageBreakItem();
+  
   // Информационный блок
   var infoItem = form.addSectionHeaderItem();
   infoItem.setTitle('Важная информация');
-  infoItem.setHelpText('После подачи заявки администратор рассмотрит её и свяжется с вами. Обычно это занимает 1-2 рабочих дня.');
+  infoItem.setHelpText('После подачи заявки администратор рассмотрит её и свяжется с вами. Обычно это занимает 1-2 рабочих дня. Мы ценим вашу инициативность и готовность участвовать в жизни школы!');
   
   // Получаем ссылку на форму
   var formUrl = form.getPublishedUrl();
