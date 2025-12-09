@@ -102,12 +102,29 @@ export async function POST(
       },
     })
 
-    // Отправляем уведомление в Telegram
+    // Отправляем уведомление в Telegram пользователю
     try {
       const { notifyReportStatus } = await import('@/telegram/bot')
       await notifyReportStatus(report.userId, params.id, 'APPROVED', report.epAmount, feedback || undefined)
     } catch (error) {
       console.error('Ошибка отправки Telegram уведомления:', error)
+    }
+
+    // Уведомляем админа об одобрении отчета ученика
+    try {
+      const { notifyAdminAboutAction } = await import('@/telegram/bot')
+      await notifyAdminAboutAction(
+        'Одобрен отчет ученика',
+        `Отчет ученика ${report.user.name} одобрен пользователем ${session.user.name}`,
+        {
+          reportId: params.id,
+          userId: report.userId,
+          epAmount: report.epAmount,
+          type: report.type,
+        }
+      )
+    } catch (error) {
+      console.error('Ошибка отправки уведомления админу:', error)
     }
 
     return NextResponse.json({

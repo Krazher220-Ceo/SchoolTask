@@ -138,6 +138,21 @@ export async function PATCH(
       },
     })
 
+    // Уведомляем админа об обновлении задачи
+    try {
+      const { notifyAdminAboutAction } = await import('@/telegram/bot')
+      await notifyAdminAboutAction(
+        'Обновлена задача',
+        `Задача "${updatedTask.title}" обновлена пользователем ${session.user.name}`,
+        {
+          taskId: updatedTask.id,
+          changes: Object.keys(updateData),
+        }
+      )
+    } catch (error) {
+      console.error('Ошибка отправки уведомления админу:', error)
+    }
+
     return NextResponse.json(updatedTask)
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -164,9 +179,26 @@ export async function DELETE(
       return NextResponse.json({ error: 'Недостаточно прав' }, { status: 403 })
     }
 
+    const deletedTask = await prisma.task.findUnique({
+      where: { id: params.id },
+      select: { title: true },
+    })
+
     await prisma.task.delete({
       where: { id: params.id },
     })
+
+    // Уведомляем админа об удалении задачи
+    try {
+      const { notifyAdminAboutAction } = await import('@/telegram/bot')
+      await notifyAdminAboutAction(
+        'Удалена задача',
+        `Задача "${deletedTask?.title || params.id}" удалена пользователем ${session.user.name}`,
+        { taskId: params.id }
+      )
+    } catch (error) {
+      console.error('Ошибка отправки уведомления админу:', error)
+    }
 
     return NextResponse.json({ message: 'Задача удалена' })
   } catch (error) {

@@ -104,6 +104,20 @@ export async function PATCH(
       },
     })
 
+    // Уведомляем админа об изменении пользователя (особенно если назначен новый админ)
+    if (data.role === 'ADMIN' && updatedUser) {
+      try {
+        const { notifyAdminAboutAction } = await import('@/telegram/bot')
+        await notifyAdminAboutAction(
+          'Назначен новый администратор',
+          `Пользователь ${updatedUser.name} (${updatedUser.email}) назначен администратором пользователем ${session.user.name}`,
+          { userId: params.id }
+        )
+      } catch (error) {
+        console.error('Ошибка отправки уведомления админу:', error)
+      }
+    }
+
     return NextResponse.json(updatedUser)
   } catch (error) {
     if (error instanceof z.ZodError) {

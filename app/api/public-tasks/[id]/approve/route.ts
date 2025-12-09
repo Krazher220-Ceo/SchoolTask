@@ -83,7 +83,7 @@ export async function POST(
       },
     })
 
-    // Отправляем уведомление в Telegram
+    // Отправляем уведомление в Telegram пользователю
     if (instance.user.telegramId) {
       try {
         const { notifyReportStatus } = await import('@/telegram/bot')
@@ -97,6 +97,23 @@ export async function POST(
       } catch (error) {
         console.error('Ошибка отправки Telegram уведомления:', error)
       }
+    }
+
+    // Уведомляем админа об одобрении общественной задачи
+    try {
+      const { notifyAdminAboutAction } = await import('@/telegram/bot')
+      await notifyAdminAboutAction(
+        'Одобрена общественная задача',
+        `Общественная задача "${instance.task.title}" одобрена для пользователя ${instance.user.name}`,
+        {
+          instanceId: params.id,
+          taskId: instance.taskId,
+          userId: instance.user.id,
+          epReward: instance.task.epReward,
+        }
+      )
+    } catch (error) {
+      console.error('Ошибка отправки уведомления админу:', error)
     }
 
     return NextResponse.json({

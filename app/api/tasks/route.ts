@@ -238,6 +238,22 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Уведомляем админа о создании задачи
+    try {
+      const { notifyAdminAboutAction } = await import('@/telegram/bot')
+      await notifyAdminAboutAction(
+        'Создана новая задача',
+        `Задача "${task.title}" создана пользователем ${session.user.name}`,
+        {
+          taskId: task.id,
+          targetAudience: task.targetAudience,
+          ministry: task.ministry,
+        }
+      )
+    } catch (error) {
+      console.error('Ошибка отправки уведомления админу:', error)
+    }
+
     return NextResponse.json(task, { status: 201 })
   } catch (error) {
     if (error instanceof z.ZodError) {

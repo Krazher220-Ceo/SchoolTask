@@ -104,6 +104,22 @@ export async function POST(
       data: { status: 'COMPLETED' },
     })
 
+    // Уведомляем админа об одобрении отчета
+    try {
+      const { notifyAdminAboutAction } = await import('@/telegram/bot')
+      await notifyAdminAboutAction(
+        'Одобрен отчет',
+        `Отчет по задаче "${report.task.title}" одобрен пользователем ${session.user.name}`,
+        {
+          reportId: report.id,
+          taskId: report.taskId,
+          userId: report.task.assignedToId,
+        }
+      )
+    } catch (error) {
+      console.error('Ошибка отправки уведомления админу:', error)
+    }
+
     return NextResponse.json({
       report: updatedReport,
       message: 'Отчет одобрен, XP начислены',

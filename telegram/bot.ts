@@ -581,3 +581,40 @@ export async function notifyReportStatus(
   }
 }
 
+/**
+ * Отправка уведомления админу о действиях в системе
+ */
+export async function notifyAdminAboutAction(
+  action: string,
+  details: string,
+  metadata?: Record<string, any>
+) {
+  try {
+    // Получаем всех админов с Telegram ID
+    const admins = await prisma.user.findMany({
+      where: {
+        role: 'ADMIN',
+        telegramId: { not: null },
+      },
+      select: {
+        telegramId: true,
+        name: true,
+      },
+    })
+
+    const message = `🔔 Уведомление администратора\n\n` +
+      `📌 Действие: ${action}\n` +
+      `📝 Детали: ${details}\n` +
+      (metadata ? `\nДополнительно: ${JSON.stringify(metadata, null, 2)}` : '')
+
+    // Отправляем уведомления всем админам
+    for (const admin of admins) {
+      if (admin.telegramId) {
+        await sendTelegramMessage(parseInt(admin.telegramId), message)
+      }
+    }
+  } catch (error) {
+    console.error('Ошибка отправки уведомления админу:', error)
+  }
+}
+

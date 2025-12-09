@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import Link from 'next/link'
+import AdminSidebar from '@/app/components/AdminSidebar'
 import { ArrowLeft, Download, FileText } from 'lucide-react'
 import { ministryNames } from '@/lib/utils'
 import ReportsClient from './ReportsClient'
@@ -40,21 +41,23 @@ export default async function ReportsPage() {
   const ministries = ['LAW_AND_ORDER', 'INFORMATION', 'SPORT', 'CARE']
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
-      <header className="bg-white shadow-sm sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <Link href="/sch1/admin" className="flex items-center space-x-2 text-gray-700 hover:text-primary-600">
-              <ArrowLeft className="h-5 w-5" />
-              <span>Назад</span>
-            </Link>
-            <h1 className="text-xl font-bold text-gray-900">Отчеты по паролям</h1>
-            <div className="w-24"></div>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white flex">
+      <AdminSidebar />
+      <div className="flex-1 ml-64">
+        <header className="bg-white shadow-sm sticky top-0 z-50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center h-16">
+              <Link href="/sch1/admin" className="flex items-center space-x-2 text-gray-700 hover:text-primary-600">
+                <ArrowLeft className="h-5 w-5" />
+                <span>Назад</span>
+              </Link>
+              <h1 className="text-xl font-bold text-gray-900">Отчеты по паролям</h1>
+              <div className="w-24"></div>
+            </div>
           </div>
-        </div>
-      </header>
+        </header>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <ReportsClient 
           users={users.map(u => ({
             id: u.id,
@@ -73,6 +76,7 @@ export default async function ReportsPage() {
           ministries={ministries}
           uniqueClasses={uniqueClasses}
         />
+        </div>
       </div>
     </div>
   )

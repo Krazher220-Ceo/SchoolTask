@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import Link from 'next/link'
+import AdminSidebar from '@/app/components/AdminSidebar'
 import { 
   Shield, 
   Users, 
@@ -91,30 +92,32 @@ export default async function AdminPage() {
   })
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
-      {/* Шапка */}
-      <header className="bg-white shadow-sm sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-3">
-              <Shield className="h-8 w-8 text-primary-600" />
-              <h1 className="text-xl font-bold text-gray-900">Админ-панель</h1>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Link
-                href="/sch1/dashboard"
-                className="flex items-center text-gray-600 hover:text-primary-600"
-              >
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Назад
-              </Link>
-              <span className="text-gray-700">{session.user.name}</span>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white flex">
+      <AdminSidebar />
+      <div className="flex-1 ml-64">
+        {/* Шапка */}
+        <header className="bg-white shadow-sm sticky top-0 z-50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center h-16">
+              <div className="flex items-center space-x-3">
+                <Shield className="h-8 w-8 text-primary-600" />
+                <h1 className="text-xl font-bold text-gray-900">Главная</h1>
+              </div>
+              <div className="flex items-center space-x-4">
+                <Link
+                  href="/sch1/dashboard"
+                  className="flex items-center text-gray-600 hover:text-primary-600"
+                >
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Назад в дашборд
+                </Link>
+                <span className="text-gray-700">{session.user.name}</span>
+              </div>
             </div>
           </div>
-        </div>
-      </header>
+        </header>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <h2 className="text-3xl font-bold text-gray-900 mb-8">Общая статистика</h2>
 
         {/* Статистика */}
@@ -341,6 +344,7 @@ export default async function AdminPage() {
         </Link>
           </div>
         </section>
+        </div>
       </div>
     </div>
   )
