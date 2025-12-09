@@ -65,7 +65,9 @@ export default function NewTaskPage() {
           body: JSON.stringify({
           title: formData.title.trim(),
           description: formData.description.trim(),
-          ministry: (formData.targetAudience === 'PARLIAMENT_MEMBER' || formData.targetAudience === 'PUBLIC') ? (formData.ministry || null) : null,
+          ministry: (formData.targetAudience === 'PARLIAMENT_MEMBER' || formData.targetAudience === 'PUBLIC') 
+            ? (formData.ministry === 'STUDENTS' ? 'STUDENTS' : (formData.ministry || null))
+            : null,
           assignedToId: formData.assignedToId || null,
           priority: formData.priority,
           deadline: formData.deadline || null,
@@ -186,7 +188,10 @@ export default function NewTaskPage() {
                 disabled={userRole === 'MINISTER' && formData.targetAudience === 'PARLIAMENT_MEMBER'}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
               >
-                <option value="">{formData.targetAudience === 'PUBLIC' ? 'Для всех министерств' : 'Выберите министерство'}</option>
+                <option value="">{formData.targetAudience === 'PUBLIC' ? 'Для всех (министерства + ученики)' : 'Выберите министерство'}</option>
+                {formData.targetAudience === 'PUBLIC' && (
+                  <option value="STUDENTS">Для учеников</option>
+                )}
                 <option value="LAW_AND_ORDER">Права и порядка</option>
                 <option value="INFORMATION">Информации</option>
                 <option value="SPORT">Спорта</option>

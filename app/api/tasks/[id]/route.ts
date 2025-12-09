@@ -57,6 +57,12 @@ export async function GET(
             createdAt: 'desc',
           },
         },
+        publicTaskInstances: {
+          where: {
+            userId: session.user.id,
+          },
+          take: 1,
+        },
       },
     })
 

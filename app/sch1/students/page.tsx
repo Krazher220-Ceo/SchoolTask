@@ -12,8 +12,7 @@ export default async function StudentsPage() {
     redirect('/sch1/login')
   }
 
-  // Получаем задачи для учеников
-  // Для PUBLIC задач: если министерство указано, показываем только если пользователь в этом министерстве или это админ
+  // Получаем задачи для учеников (только STUDENT и PUBLIC с ministry=null или ministry='STUDENTS')
   const taskWhere: any = {
     OR: [
       { targetAudience: 'STUDENT' },
@@ -21,18 +20,14 @@ export default async function StudentsPage() {
         targetAudience: 'PUBLIC',
         ministry: null, // Общественные задачи без министерства (для всех)
       },
+      {
+        targetAudience: 'PUBLIC',
+        ministry: 'STUDENTS', // Общественные задачи специально для учеников
+      },
     ],
   }
 
-  // Если пользователь в парламенте, показываем также общественные задачи для его министерства
-  if (session.user.parliamentMember) {
-    taskWhere.OR.push({
-      targetAudience: 'PUBLIC',
-      ministry: session.user.parliamentMember.ministry,
-    })
-  }
-
-  // Если админ, показываем все общественные задачи
+  // Админы видят все задачи
   if (session.user.role === 'ADMIN') {
     taskWhere.OR.push({ targetAudience: 'PUBLIC' })
   }
@@ -100,7 +95,20 @@ export default async function StudentsPage() {
             <Link href="/sch1/dashboard" className="flex items-center space-x-2 text-gray-700 hover:text-primary-600">
               ← Назад
             </Link>
-            <h1 className="text-xl font-bold text-gray-900">Задачи для учеников</h1>
+            <div className="flex items-center space-x-4">
+              <Link
+                href="/sch1/students"
+                className="px-4 py-2 rounded-lg bg-primary-600 text-white font-semibold"
+              >
+                Задачи
+              </Link>
+              <Link
+                href="/sch1/students/quests"
+                className="px-4 py-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 font-semibold"
+              >
+                Мои задания
+              </Link>
+            </div>
             {session.user.role === 'ADMIN' && (
               <Link
                 href="/sch1/tasks/new?target=student"

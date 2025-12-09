@@ -9,7 +9,7 @@ export const dynamic = 'force-dynamic'
 const taskSchema = z.object({
   title: z.string().min(1),
   description: z.string().min(1),
-  ministry: z.enum(['LAW_AND_ORDER', 'INFORMATION', 'SPORT', 'CARE']).optional().nullable(),
+  ministry: z.enum(['LAW_AND_ORDER', 'INFORMATION', 'SPORT', 'CARE', 'STUDENTS']).optional().nullable(),
   assignedToId: z.string().optional().nullable(),
   priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).default('MEDIUM'),
   deadline: z.string().optional().nullable(),
@@ -40,17 +40,35 @@ export async function GET(request: NextRequest) {
     if (assignedToId) where.assignedToId = assignedToId
     if (targetAudience) where.targetAudience = targetAudience
 
-    // Все пользователи могут видеть задачи для учеников и общественные задачи
-    // Парламент видит свои задачи + задачи для учеников + общественные
+    // Разделяем задачи: министерства видят только свои, ученики - только свои
     if (session.user.role === 'STUDENT') {
-      // Обычные ученики видят только задачи для учеников и общественные
+      // Обычные ученики видят только задачи для учеников и общественные (без министерств или для учеников)
       where.OR = [
         { targetAudience: 'STUDENT' },
-        { targetAudience: 'PUBLIC' },
+        {
+          targetAudience: 'PUBLIC',
+          OR: [
+            { ministry: null },
+            { ministry: 'STUDENTS' },
+          ],
+        },
       ]
     } else if (session.user.parliamentMember) {
-      // Участники парламента видят все задачи
-      // Приоритет будет применен на клиенте
+      // Участники парламента видят только задачи министерств (не видят задачи для учеников)
+      where.OR = [
+        { assignedToId: session.user.id },
+        {
+          ministry: session.user.parliamentMember.ministry,
+          targetAudience: 'PARLIAMENT_MEMBER',
+        },
+        {
+          targetAudience: 'PUBLIC',
+          OR: [
+            { ministry: null },
+            { ministry: session.user.parliamentMember.ministry },
+          ],
+        },
+      ]
     }
 
     const tasks = await prisma.task.findMany({
@@ -143,7 +161,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Для задач ученикам министерство не требуется, но EP обязателен
-    // Для общественных задач министерство опционально (может быть для всех или для конкретного министерства)
+    // Для общественных задач министерство опционально (может быть для всех, для конкретного министерства, или 'STUDENTS' для учеников)
     if (data.targetAudience === 'STUDENT' || data.targetAudience === 'PUBLIC') {
       if (!data.epReward || data.epReward <= 0) {
         return NextResponse.json({ 
@@ -153,7 +171,13 @@ export async function POST(request: NextRequest) {
       // Общественные задачи всегда PUBLIC типа
       if (data.targetAudience === 'PUBLIC') {
         data.taskType = 'PUBLIC'
-        // Для общественных задач министерство опционально (null = для всех, конкретное = для министерства)
+        // Для общественных задач министерство опционально:
+        // null = для всех (министерства + ученики)
+        // 'STUDENTS' = только для учеников
+        // конкретное министерство = только для этого министерства
+        if (data.ministry === 'STUDENTS') {
+          data.ministry = 'STUDENTS' // Сохраняем как строку 'STUDENTS'
+        }
       }
     }
 

@@ -23,22 +23,32 @@ export default function PublicTaskPage() {
   })
 
   useEffect(() => {
-    fetch(`/api/tasks?id=${taskId}`)
-      .then(res => res.json())
+    fetch(`/api/tasks/${taskId}`)
+      .then(res => {
+        if (!res.ok) {
+          throw new Error('Задача не найдена')
+        }
+        return res.json()
+      })
       .then(data => {
         if (data.id) {
           setTask(data)
-          // Проверяем, взял ли пользователь задачу
-          if (data.publicTaskInstances && data.publicTaskInstances.length > 0) {
-            setInstance(data.publicTaskInstances[0])
-            if (data.publicTaskInstances[0].videoUrl || data.publicTaskInstances[0].workLink) {
-              setFormData({
-                videoUrl: data.publicTaskInstances[0].videoUrl || '',
-                workLink: data.publicTaskInstances[0].workLink || '',
-                description: data.publicTaskInstances[0].description || '',
-              })
-            }
-          }
+          // Загружаем инстанс задачи пользователя отдельно
+          fetch(`/api/public-tasks/${taskId}/instance`)
+            .then(res => res.ok ? res.json() : null)
+            .then(instanceData => {
+              if (instanceData) {
+                setInstance(instanceData)
+                if (instanceData.videoUrl || instanceData.workLink) {
+                  setFormData({
+                    videoUrl: instanceData.videoUrl || '',
+                    workLink: instanceData.workLink || '',
+                    description: instanceData.description || '',
+                  })
+                }
+              }
+            })
+            .catch(() => {})
         }
         setLoading(false)
       })

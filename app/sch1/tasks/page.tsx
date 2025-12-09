@@ -30,20 +30,36 @@ export default async function TasksPage({
     where.assignedToId = searchParams.assignedToId
   }
 
-  // Если не админ, показываем свои задачи, задачи своего министерства, задачи для учеников и общественные
+  // Разделяем задачи: министерства видят только свои задачи, ученики - только свои
   if (session.user.role !== 'ADMIN') {
     if (session.user.parliamentMember) {
+      // Участники парламента видят только задачи министерств (не видят задачи для учеников)
       where.OR = [
         { assignedToId: session.user.id },
-        { ministry: session.user.parliamentMember.ministry },
-        { targetAudience: 'STUDENT' },
-        { targetAudience: 'PUBLIC' },
+        { 
+          ministry: session.user.parliamentMember.ministry,
+          targetAudience: 'PARLIAMENT_MEMBER',
+        },
+        {
+          targetAudience: 'PUBLIC',
+          OR: [
+            { ministry: null },
+            { ministry: session.user.parliamentMember.ministry },
+          ],
+        },
       ]
     } else {
+      // Ученики видят только задачи для учеников (не видят задачи министерств)
       where.OR = [
         { assignedToId: session.user.id },
         { targetAudience: 'STUDENT' },
-        { targetAudience: 'PUBLIC' },
+        {
+          targetAudience: 'PUBLIC',
+          OR: [
+            { ministry: null },
+            { ministry: 'STUDENTS' },
+          ],
+        },
       ]
     }
   }
