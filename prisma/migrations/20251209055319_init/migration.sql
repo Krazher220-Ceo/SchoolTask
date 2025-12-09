@@ -7,8 +7,8 @@ CREATE TABLE "User" (
     "role" TEXT NOT NULL DEFAULT 'STUDENT',
     "class" TEXT,
     "avatar" TEXT,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" DATETIME NOT NULL
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL
 );
 
 -- CreateTable
@@ -21,7 +21,7 @@ CREATE TABLE "ParliamentMember" (
     "xp" INTEGER NOT NULL DEFAULT 0,
     "level" INTEGER NOT NULL DEFAULT 1,
     "rank" TEXT NOT NULL DEFAULT 'Новичок',
-    "joinedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "joinedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "isActive" BOOLEAN NOT NULL DEFAULT true,
     CONSTRAINT "ParliamentMember_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
@@ -36,12 +36,12 @@ CREATE TABLE "Task" (
     "createdById" TEXT NOT NULL,
     "status" TEXT NOT NULL DEFAULT 'NEW',
     "priority" TEXT NOT NULL DEFAULT 'MEDIUM',
-    "deadline" DATETIME,
+    "deadline" TIMESTAMP(3),
     "xpReward" INTEGER NOT NULL DEFAULT 10,
     "tags" TEXT,
     "attachments" TEXT,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" DATETIME NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
     CONSTRAINT "Task_assignedToId_fkey" FOREIGN KEY ("assignedToId") REFERENCES "User" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
     CONSTRAINT "Task_createdById_fkey" FOREIGN KEY ("createdById") REFERENCES "User" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
@@ -59,8 +59,8 @@ CREATE TABLE "TaskReport" (
     "status" TEXT NOT NULL DEFAULT 'PENDING',
     "quality" INTEGER,
     "feedback" TEXT,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" DATETIME NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
     CONSTRAINT "TaskReport_taskId_fkey" FOREIGN KEY ("taskId") REFERENCES "Task" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT "TaskReport_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
@@ -73,7 +73,7 @@ CREATE TABLE "XPHistory" (
     "reason" TEXT NOT NULL,
     "source" TEXT,
     "sourceId" TEXT,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT "XPHistory_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
@@ -93,7 +93,7 @@ CREATE TABLE "UserBadge" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "userId" TEXT NOT NULL,
     "badgeId" TEXT NOT NULL,
-    "earnedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "earnedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT "UserBadge_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT "UserBadge_badgeId_fkey" FOREIGN KEY ("badgeId") REFERENCES "Badge" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
@@ -105,7 +105,7 @@ CREATE TABLE "EventPoint" (
     "amount" INTEGER NOT NULL,
     "reason" TEXT NOT NULL,
     "eventId" TEXT,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT "EventPoint_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
@@ -116,7 +116,7 @@ CREATE TABLE "Achievement" (
     "title" TEXT NOT NULL,
     "description" TEXT NOT NULL,
     "icon" TEXT,
-    "earnedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "earnedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT "Achievement_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
@@ -127,7 +127,7 @@ CREATE TABLE "Compliment" (
     "toId" TEXT NOT NULL,
     "message" TEXT NOT NULL,
     "type" TEXT NOT NULL,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT "Compliment_fromId_fkey" FOREIGN KEY ("fromId") REFERENCES "User" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT "Compliment_toId_fkey" FOREIGN KEY ("toId") REFERENCES "User" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
@@ -137,8 +137,8 @@ CREATE TABLE "Mentor" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "mentorId" TEXT NOT NULL,
     "menteeId" TEXT NOT NULL,
-    "startedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "endedAt" DATETIME,
+    "startedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "endedAt" TIMESTAMP(3),
     "isActive" BOOLEAN NOT NULL DEFAULT true,
     CONSTRAINT "Mentor_mentorId_fkey" FOREIGN KEY ("mentorId") REFERENCES "User" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT "Mentor_menteeId_fkey" FOREIGN KEY ("menteeId") REFERENCES "User" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
@@ -153,8 +153,8 @@ CREATE TABLE "Quest" (
     "xpReward" INTEGER NOT NULL,
     "condition" TEXT NOT NULL,
     "isActive" BOOLEAN NOT NULL DEFAULT true,
-    "startsAt" DATETIME,
-    "endsAt" DATETIME
+    "startsAt" TIMESTAMP(3),
+    "endsAt" TIMESTAMP(3)
 );
 
 -- CreateTable
@@ -165,7 +165,7 @@ CREATE TABLE "QuestProgress" (
     "progress" INTEGER NOT NULL DEFAULT 0,
     "target" INTEGER NOT NULL,
     "completed" BOOLEAN NOT NULL DEFAULT false,
-    "completedAt" DATETIME,
+    "completedAt" TIMESTAMP(3),
     CONSTRAINT "QuestProgress_questId_fkey" FOREIGN KEY ("questId") REFERENCES "Quest" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT "QuestProgress_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
@@ -179,7 +179,7 @@ CREATE TABLE "Rating" (
     "position" INTEGER NOT NULL,
     "value" INTEGER NOT NULL,
     "ministry" TEXT,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT "Rating_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
@@ -190,13 +190,13 @@ CREATE TABLE "Event" (
     "description" TEXT NOT NULL,
     "ministry" TEXT,
     "category" TEXT NOT NULL,
-    "date" DATETIME NOT NULL,
+    "date" TIMESTAMP(3) NOT NULL,
     "location" TEXT,
     "maxParticipants" INTEGER,
     "status" TEXT NOT NULL DEFAULT 'UPCOMING',
     "createdById" TEXT NOT NULL,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" DATETIME NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
     "photos" TEXT
 );
 
@@ -205,7 +205,7 @@ CREATE TABLE "EventParticipant" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "eventId" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
-    "registeredAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "registeredAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "attended" BOOLEAN NOT NULL DEFAULT false,
     "epEarned" INTEGER NOT NULL DEFAULT 0,
     CONSTRAINT "EventParticipant_eventId_fkey" FOREIGN KEY ("eventId") REFERENCES "Event" ("id") ON DELETE CASCADE ON UPDATE CASCADE
@@ -221,8 +221,8 @@ CREATE TABLE "Idea" (
     "status" TEXT NOT NULL DEFAULT 'PENDING',
     "ministry" TEXT,
     "feedback" TEXT,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" DATETIME NOT NULL
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL
 );
 
 -- CreateIndex
