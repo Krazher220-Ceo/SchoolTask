@@ -331,14 +331,12 @@ export default async function ParliamentHome() {
             самого креативного сообщества школы.
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
-            <a
-              href="https://forms.google.com/your-form-link"
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              href="/forms/registration"
               className="bg-white text-primary-600 px-6 py-3 rounded-lg hover:bg-gray-100 transition font-semibold text-center"
             >
               Подать заявку
-            </a>
+            </Link>
             <Link
               href="/sch1/game"
               className="bg-primary-700 text-white px-6 py-3 rounded-lg hover:bg-primary-800 transition font-semibold text-center border-2 border-white"
@@ -358,15 +356,13 @@ export default async function ParliamentHome() {
             У тебя есть крутая идея для мероприятия или проекта? Поделись ею с нами! 
             Лучшие идеи мы обязательно реализуем.
           </p>
-          <a
-            href="https://forms.google.com/your-idea-form-link"
-            target="_blank"
-            rel="noopener noreferrer"
+          <Link
+            href="/forms/idea"
             className="bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition font-semibold inline-flex items-center"
           >
             Предложить мероприятие
             <ArrowRight className="ml-2 h-4 w-4" />
-          </a>
+          </Link>
         </div>
       </section>
 

@@ -265,14 +265,12 @@ export default async function MinistryPage({ params }: { params: { slug: string 
           <p className="text-lg mb-6 text-primary-100">
             Стань частью команды и помоги создавать незабываемые мероприятия!
           </p>
-          <a
-            href="https://forms.google.com/your-form-link"
-            target="_blank"
-            rel="noopener noreferrer"
+          <Link
+            href="/forms/registration"
             className="bg-white text-primary-600 px-6 py-3 rounded-lg hover:bg-gray-100 transition font-semibold inline-block"
           >
             Подать заявку
-          </a>
+          </Link>
         </section>
       </div>
     </div>
