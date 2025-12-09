@@ -4,6 +4,8 @@ const nextConfig = {
   images: {
     domains: ['localhost'],
   },
+  // Отключаем статическую генерацию для API routes
+  output: 'standalone',
   webpack: (config, { isServer, dev }) => {
     // Исправление проблем с динамическими импортами
     if (!isServer) {
