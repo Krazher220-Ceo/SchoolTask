@@ -79,7 +79,7 @@ export default async function StudentQuestsPage() {
                 <div
                   key={aq.id}
                   className={`border-2 rounded-lg p-4 ${
-                    aq.completed
+                    aq.status === 'COMPLETED'
                       ? 'border-green-200 bg-green-50'
                       : 'border-gray-200 bg-gray-50'
                   }`}
@@ -95,7 +95,7 @@ export default async function StudentQuestsPage() {
                         )}
                       </div>
                     </div>
-                    {aq.completed ? (
+                    {aq.status === 'COMPLETED' ? (
                       <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-semibold">
                         ✓ Выполнено
                       </span>
@@ -126,7 +126,7 @@ export default async function StudentQuestsPage() {
                 <div
                   key={aq.id}
                   className={`border-2 rounded-lg p-4 ${
-                    aq.completed
+                    aq.status === 'COMPLETED'
                       ? 'border-green-200 bg-green-50'
                       : 'border-gray-200 bg-gray-50'
                   }`}
@@ -142,7 +142,7 @@ export default async function StudentQuestsPage() {
                         )}
                       </div>
                     </div>
-                    {aq.completed ? (
+                    {aq.status === 'COMPLETED' ? (
                       <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-semibold">
                         ✓ Выполнено
                       </span>
@@ -173,7 +173,7 @@ export default async function StudentQuestsPage() {
                 <div
                   key={aq.id}
                   className={`border-2 rounded-lg p-4 ${
-                    aq.completed
+                    aq.status === 'COMPLETED'
                       ? 'border-green-200 bg-green-50'
                       : 'border-gray-200 bg-gray-50'
                   }`}
@@ -189,7 +189,7 @@ export default async function StudentQuestsPage() {
                         )}
                       </div>
                     </div>
-                    {aq.completed ? (
+                    {aq.status === 'COMPLETED' ? (
                       <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-semibold">
                         ✓ Выполнено
                       </span>
