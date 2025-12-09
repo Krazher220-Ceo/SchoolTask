@@ -33,7 +33,25 @@ export default function ReportsClient({
   const [userPasswords, setUserPasswords] = useState<Record<string, string>>({})
   const [loading, setLoading] = useState(false)
 
-  const resetPassword = async (userId: string) => {
+  const getPassword = async (userId: string) => {
+    // Сначала пробуем GET (получить без сброса)
+    try {
+      const getResponse = await fetch(`/api/users/${userId}/password`, {
+        method: 'GET',
+      })
+      
+      if (getResponse.ok) {
+        const data = await getResponse.json()
+        if (data.password) {
+          setUserPasswords({ ...userPasswords, [userId]: data.password })
+          return data.password
+        }
+      }
+    } catch (error) {
+      console.error('Ошибка при получении пароля:', error)
+    }
+
+    // Если GET не вернул пароль, используем POST для регенерации
     setLoading(true)
     try {
       const response = await fetch(`/api/users/${userId}/password`, {
@@ -41,7 +59,7 @@ export default function ReportsClient({
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({}),
+        body: JSON.stringify({ regenerate: true }),
       })
 
       if (response.ok) {
@@ -61,6 +79,34 @@ export default function ReportsClient({
     }
   }
 
+  const regeneratePassword = async (userId: string) => {
+    setLoading(true)
+    try {
+      const response = await fetch(`/api/users/${userId}/password`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ regenerate: true }),
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setUserPasswords({ ...userPasswords, [userId]: data.password })
+        return data.password
+      } else {
+        const error = await response.json()
+        alert(error.error || 'Ошибка при регенерации пароля')
+        return null
+      }
+    } catch (error) {
+      alert('Ошибка при регенерации пароля')
+      return null
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const generateReport = async (type: 'ministry' | 'class') => {
     let filteredUsers = users
 
@@ -74,7 +120,7 @@ export default function ReportsClient({
     const passwords: Record<string, string> = {}
     for (const user of filteredUsers) {
       if (!userPasswords[user.id]) {
-        const password = await resetPassword(user.id)
+        const password = await getPassword(user.id)
         if (password) {
           passwords[user.id] = password
         }
@@ -221,17 +267,29 @@ export default function ReportsClient({
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.email}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.fullClass || user.class || '—'}</td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      {userPasswords[user.id] ? (
-                        <span className="text-sm font-mono text-green-600">{userPasswords[user.id]}</span>
-                      ) : (
-                        <button
-                          onClick={() => resetPassword(user.id)}
-                          disabled={loading}
-                          className="text-blue-600 hover:text-blue-900 text-sm"
-                        >
-                          Получить пароль
-                        </button>
-                      )}
+                      <div className="flex items-center gap-2">
+                        {userPasswords[user.id] ? (
+                          <>
+                            <span className="text-sm font-mono text-green-600">{userPasswords[user.id]}</span>
+                            <button
+                              onClick={() => regeneratePassword(user.id)}
+                              disabled={loading}
+                              className="text-xs text-blue-600 hover:text-blue-900 underline"
+                              title="Регенерировать пароль"
+                            >
+                              Обновить
+                            </button>
+                          </>
+                        ) : (
+                          <button
+                            onClick={() => getPassword(user.id)}
+                            disabled={loading}
+                            className="text-blue-600 hover:text-blue-900 text-sm"
+                          >
+                            Получить пароль
+                          </button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}

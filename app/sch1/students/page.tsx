@@ -13,13 +13,32 @@ export default async function StudentsPage() {
   }
 
   // Получаем задачи для учеников
+  // Для PUBLIC задач: если министерство указано, показываем только если пользователь в этом министерстве или это админ
+  const taskWhere: any = {
+    OR: [
+      { targetAudience: 'STUDENT' },
+      {
+        targetAudience: 'PUBLIC',
+        ministry: null, // Общественные задачи без министерства (для всех)
+      },
+    ],
+  }
+
+  // Если пользователь в парламенте, показываем также общественные задачи для его министерства
+  if (session.user.parliamentMember) {
+    taskWhere.OR.push({
+      targetAudience: 'PUBLIC',
+      ministry: session.user.parliamentMember.ministry,
+    })
+  }
+
+  // Если админ, показываем все общественные задачи
+  if (session.user.role === 'ADMIN') {
+    taskWhere.OR.push({ targetAudience: 'PUBLIC' })
+  }
+
   const studentTasks = await prisma.task.findMany({
-    where: {
-      OR: [
-        { targetAudience: 'STUDENT' },
-        { targetAudience: 'PUBLIC' },
-      ],
-    },
+    where: taskWhere,
     include: {
       publicTaskInstances: {
         where: {
@@ -160,116 +179,191 @@ export default async function StudentsPage() {
         {session.user.role === 'ADMIN' ? (
           <div className="bg-white rounded-xl shadow-lg p-6">
             <h2 className="text-2xl font-bold text-gray-900 mb-4">Отчеты учеников на проверке</h2>
-            <div className="space-y-4">
-              {reports.filter(r => r.status === 'PENDING').length > 0 ? (
-                reports
-                  .filter(r => r.status === 'PENDING')
-                  .map((report) => (
-                    <div key={report.id} className="border-2 border-yellow-200 rounded-lg p-6">
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="flex-1">
-                          <div className="flex items-center space-x-3 mb-2">
-                            <span className="font-semibold text-gray-900">{report.user.name}</span>
-                            <span className="text-sm text-gray-500">{report.user.class} класс</span>
-                            <span className={`px-2 py-1 rounded text-xs ${
+            {reports.filter(r => r.status === 'PENDING').length > 0 ? (
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Ученик</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Класс</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Тип</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Предмет</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Балл</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">EP</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Фото</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Дата</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Действия</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {reports
+                      .filter(r => r.status === 'PENDING')
+                      .map((report) => (
+                        <tr key={report.id} className="hover:bg-gray-50">
+                          <td className="px-4 py-3 whitespace-nowrap">
+                            <div className="font-medium text-gray-900">{report.user.name}</div>
+                          </td>
+                          <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-600">
+                            {report.user.class || '—'}
+                          </td>
+                          <td className="px-4 py-3 whitespace-nowrap">
+                            <span className={`px-2 py-1 rounded text-xs font-semibold ${
                               report.type === 'GRADE_PHOTO' ? 'bg-blue-100 text-blue-700' :
                               report.type === 'SOR' ? 'bg-green-100 text-green-700' :
                               'bg-purple-100 text-purple-700'
                             }`}>
-                              {report.type === 'GRADE_PHOTO' ? 'Балл за предмет' :
+                              {report.type === 'GRADE_PHOTO' ? 'Балл' :
                                report.type === 'SOR' ? 'СОР' : 'Задача'}
                             </span>
-                          </div>
-                          {report.subject && (
-                            <p className="text-gray-600 mb-2">Предмет: {report.subject}</p>
-                          )}
-                          {report.grade && (
-                            <p className="text-gray-600 mb-2">Балл: {report.grade} → {report.epAmount} EP</p>
-                          )}
-                          {report.description && (
-                            <p className="text-gray-600 mb-4">{report.description}</p>
-                          )}
-                          <div className="mb-4">
-                            <img 
-                              src={report.photoUrl} 
-                              alt="Отчет" 
-                              className="max-w-md rounded-lg border-2 border-gray-200"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex space-x-2">
-                        <Link
-                          href={`/sch1/students/reports/${report.id}/approve`}
-                          className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition"
-                        >
-                          Одобрить (+{report.epAmount} EP)
-                        </Link>
-                        <Link
-                          href={`/sch1/students/reports/${report.id}/reject`}
-                          className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition"
-                        >
-                          Отклонить
-                        </Link>
-                      </div>
-                    </div>
-                  ))
-              ) : (
-                <p className="text-gray-500 text-center py-8">Нет отчетов на проверке</p>
-              )}
-            </div>
+                          </td>
+                          <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-600">
+                            {report.subject || '—'}
+                          </td>
+                          <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 font-semibold">
+                            {report.grade || '—'}
+                          </td>
+                          <td className="px-4 py-3 whitespace-nowrap text-sm text-green-600 font-semibold">
+                            {report.epAmount || 0} EP
+                          </td>
+                          <td className="px-4 py-3 whitespace-nowrap">
+                            {report.photoUrl ? (
+                              <a
+                                href={report.photoUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-600 hover:text-blue-800 text-sm"
+                              >
+                                Просмотр
+                              </a>
+                            ) : (
+                              <span className="text-gray-400 text-sm">—</span>
+                            )}
+                          </td>
+                          <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
+                            {new Date(report.createdAt).toLocaleDateString('ru-RU')}
+                          </td>
+                          <td className="px-4 py-3 whitespace-nowrap">
+                            <div className="flex gap-2">
+                              <Link
+                                href={`/sch1/students/reports/${report.id}/approve`}
+                                className="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700 transition"
+                              >
+                                Одобрить
+                              </Link>
+                              <Link
+                                href={`/sch1/students/reports/${report.id}/reject`}
+                                className="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700 transition"
+                              >
+                                Отклонить
+                              </Link>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <p className="text-gray-500 text-center py-8">Нет отчетов на проверке</p>
+            )}
           </div>
         ) : (
           <div className="bg-white rounded-xl shadow-lg p-6">
             <h2 className="text-2xl font-bold text-gray-900 mb-4">Мои отчеты</h2>
-            <div className="space-y-4">
-              {reports.length > 0 ? (
-                reports.map((report) => (
-                  <div key={report.id} className="border-2 border-gray-200 rounded-lg p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <div>
-                        <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                          report.status === 'APPROVED' ? 'bg-green-100 text-green-700' :
-                          report.status === 'REJECTED' ? 'bg-red-100 text-red-700' :
-                          'bg-yellow-100 text-yellow-700'
-                        }`}>
-                          {report.status === 'APPROVED' ? 'Одобрено' :
-                           report.status === 'REJECTED' ? 'Отклонено' : 'На проверке'}
-                        </span>
-                        {report.epAmount && report.status === 'APPROVED' && (
-                          <span className="ml-2 text-green-600 font-semibold">
-                            +{report.epAmount} EP
+            {reports.length > 0 ? (
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Тип</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Предмет</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Балл</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">EP</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Статус</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Фото</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Дата</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Комментарий</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {reports.map((report) => (
+                      <tr key={report.id} className="hover:bg-gray-50">
+                        <td className="px-4 py-3 whitespace-nowrap">
+                          <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                            report.type === 'GRADE_PHOTO' ? 'bg-blue-100 text-blue-700' :
+                            report.type === 'SOR' ? 'bg-green-100 text-green-700' :
+                            'bg-purple-100 text-purple-700'
+                          }`}>
+                            {report.type === 'GRADE_PHOTO' ? 'Балл' :
+                             report.type === 'SOR' ? 'СОР' : 'Задача'}
                           </span>
-                        )}
-                      </div>
-                    </div>
-                    {report.photoUrl && (
-                      <img 
-                        src={report.photoUrl} 
-                        alt="Отчет" 
-                        className="max-w-md rounded-lg border-2 border-gray-200 mb-4"
-                      />
-                    )}
-                    {report.feedback && (
-                      <div className="bg-gray-50 border-l-4 border-gray-400 p-4">
-                        <p className="text-sm text-gray-700">{report.feedback}</p>
-                      </div>
-                    )}
-                  </div>
-                ))
-              ) : (
-                <div className="text-center py-8">
-                  <p className="text-gray-500 mb-4">У вас пока нет отчетов</p>
-                  <Link
-                    href="/sch1/students/report"
-                    className="bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition inline-flex items-center"
-                  >
-                    <Image className="h-5 w-5 mr-2" />
-                    Загрузить фото балла
-                  </Link>
-                </div>
-              )}
-            </div>
+                        </td>
+                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-600">
+                          {report.subject || '—'}
+                        </td>
+                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 font-semibold">
+                          {report.grade || '—'}
+                        </td>
+                        <td className="px-4 py-3 whitespace-nowrap">
+                          {report.epAmount && report.status === 'APPROVED' ? (
+                            <span className="text-green-600 font-semibold">+{report.epAmount} EP</span>
+                          ) : (
+                            <span className="text-gray-400">—</span>
+                          )}
+                        </td>
+                        <td className="px-4 py-3 whitespace-nowrap">
+                          <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                            report.status === 'APPROVED' ? 'bg-green-100 text-green-700' :
+                            report.status === 'REJECTED' ? 'bg-red-100 text-red-700' :
+                            'bg-yellow-100 text-yellow-700'
+                          }`}>
+                            {report.status === 'APPROVED' ? 'Одобрено' :
+                             report.status === 'REJECTED' ? 'Отклонено' : 'На проверке'}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 whitespace-nowrap">
+                          {report.photoUrl ? (
+                            <a
+                              href={report.photoUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:text-blue-800 text-sm"
+                            >
+                              Просмотр
+                            </a>
+                          ) : (
+                            <span className="text-gray-400 text-sm">—</span>
+                          )}
+                        </td>
+                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
+                          {new Date(report.createdAt).toLocaleDateString('ru-RU')}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-600 max-w-xs">
+                          {report.feedback ? (
+                            <div className="bg-gray-50 border-l-4 border-gray-400 p-2 rounded">
+                              <p className="text-xs">{report.feedback}</p>
+                            </div>
+                          ) : (
+                            <span className="text-gray-400">—</span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-gray-500 mb-4">У вас пока нет отчетов</p>
+                <Link
+                  href="/sch1/students/report"
+                  className="bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition inline-flex items-center"
+                >
+                  <Image className="h-5 w-5 mr-2" />
+                  Загрузить фото балла
+                </Link>
+              </div>
+            )}
           </div>
         )}
       </div>

@@ -13,6 +13,9 @@ export default function PublicTaskPage() {
   const [instance, setInstance] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
+  const [topLimit, setTopLimit] = useState<3 | 5 | 10>(10)
+  const [topPerformers, setTopPerformers] = useState<any[]>([])
+  const [loadingTop, setLoadingTop] = useState(false)
   const [formData, setFormData] = useState({
     videoUrl: '',
     workLink: '',
@@ -41,6 +44,28 @@ export default function PublicTaskPage() {
       })
       .catch(() => setLoading(false))
   }, [taskId])
+
+  const loadTopPerformers = async (limit: 3 | 5 | 10) => {
+    setLoadingTop(true)
+    try {
+      const res = await fetch(`/api/public-tasks/top?taskId=${taskId}&limit=${limit}`)
+      if (res.ok) {
+        const data = await res.json()
+        setTopPerformers(data.top || [])
+        setTopLimit(limit)
+      }
+    } catch (error) {
+      console.error('Ошибка загрузки топа:', error)
+    } finally {
+      setLoadingTop(false)
+    }
+  }
+
+  useEffect(() => {
+    if (task && task.taskType === 'PUBLIC') {
+      loadTopPerformers(10)
+    }
+  }, [task])
 
   const handleTakeTask = async () => {
     setSubmitting(true)
@@ -140,8 +165,107 @@ export default function PublicTaskPage() {
             {task.deadline && (
               <span>До: {new Date(task.deadline).toLocaleDateString('ru-RU')}</span>
             )}
+            {task.ministry && (
+              <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded">
+                {task.ministry === 'LAW_AND_ORDER' ? 'Права и порядка' :
+                 task.ministry === 'INFORMATION' ? 'Информации' :
+                 task.ministry === 'SPORT' ? 'Спорта' :
+                 task.ministry === 'CARE' ? 'Заботы' : task.ministry}
+              </span>
+            )}
           </div>
         </div>
+
+        {/* Топ выполнивших */}
+        {task.taskType === 'PUBLIC' && (
+          <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-bold text-gray-900">Топ выполнивших</h2>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => loadTopPerformers(3)}
+                  className={`px-3 py-1 rounded-lg text-sm transition ${
+                    topLimit === 3
+                      ? 'bg-primary-600 text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  Топ 3
+                </button>
+                <button
+                  onClick={() => loadTopPerformers(5)}
+                  className={`px-3 py-1 rounded-lg text-sm transition ${
+                    topLimit === 5
+                      ? 'bg-primary-600 text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  Топ 5
+                </button>
+                <button
+                  onClick={() => loadTopPerformers(10)}
+                  className={`px-3 py-1 rounded-lg text-sm transition ${
+                    topLimit === 10
+                      ? 'bg-primary-600 text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  Топ 10
+                </button>
+              </div>
+            </div>
+            {loadingTop ? (
+              <p className="text-gray-500 text-center py-4">Загрузка...</p>
+            ) : topPerformers.length > 0 ? (
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-gray-200">
+                      <th className="text-left py-3 px-4 font-semibold text-gray-700">Место</th>
+                      <th className="text-left py-3 px-4 font-semibold text-gray-700">Ученик</th>
+                      <th className="text-left py-3 px-4 font-semibold text-gray-700">Класс</th>
+                      <th className="text-left py-3 px-4 font-semibold text-gray-700">Министерство</th>
+                      <th className="text-left py-3 px-4 font-semibold text-gray-700">Выполнено</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {topPerformers.map((performer, index) => (
+                      <tr key={performer.id} className="border-b border-gray-100 hover:bg-gray-50">
+                        <td className="py-3 px-4">
+                          <span className={`inline-flex items-center justify-center w-8 h-8 rounded-full font-bold ${
+                            index === 0 ? 'bg-yellow-100 text-yellow-700' :
+                            index === 1 ? 'bg-gray-100 text-gray-700' :
+                            index === 2 ? 'bg-orange-100 text-orange-700' :
+                            'bg-blue-100 text-blue-700'
+                          }`}>
+                            {index + 1}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4 font-medium text-gray-900">{performer.user.name}</td>
+                        <td className="py-3 px-4 text-gray-600">{performer.user.fullClass || performer.user.class || '—'}</td>
+                        <td className="py-3 px-4 text-gray-600">
+                          {performer.user.parliamentMember?.ministry 
+                            ? (performer.user.parliamentMember.ministry === 'LAW_AND_ORDER' ? 'Права и порядка' :
+                               performer.user.parliamentMember.ministry === 'INFORMATION' ? 'Информации' :
+                               performer.user.parliamentMember.ministry === 'SPORT' ? 'Спорта' :
+                               performer.user.parliamentMember.ministry === 'CARE' ? 'Заботы' : performer.user.parliamentMember.ministry)
+                            : '—'}
+                        </td>
+                        <td className="py-3 px-4 text-gray-600">
+                          {performer.completedAt 
+                            ? new Date(performer.completedAt).toLocaleString('ru-RU')
+                            : '—'}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <p className="text-gray-500 text-center py-4">Пока никто не выполнил эту задачу</p>
+            )}
+          </div>
+        )}
 
         {!instance ? (
           <div className="bg-white rounded-xl shadow-lg p-6 text-center">

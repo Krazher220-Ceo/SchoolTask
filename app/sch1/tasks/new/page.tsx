@@ -61,10 +61,10 @@ export default function NewTaskPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
+          body: JSON.stringify({
           title: formData.title.trim(),
           description: formData.description.trim(),
-          ministry: formData.targetAudience === 'PARLIAMENT_MEMBER' ? (formData.ministry || null) : null,
+          ministry: (formData.targetAudience === 'PARLIAMENT_MEMBER' || formData.targetAudience === 'PUBLIC') ? (formData.ministry || null) : null,
           assignedToId: formData.assignedToId || null,
           priority: formData.priority,
           deadline: formData.deadline || null,
@@ -158,7 +158,7 @@ export default function NewTaskPage() {
                   ...formData, 
                   targetAudience: target,
                   taskType: target === 'PUBLIC' ? 'PUBLIC' : 'PRIVATE',
-                  ministry: (target === 'STUDENT' || target === 'PUBLIC') ? '' : formData.ministry,
+                  ministry: target === 'STUDENT' ? '' : formData.ministry, // Для PUBLIC министерство опционально
                   epReward: (target === 'STUDENT' || target === 'PUBLIC') ? 10 : 0,
                   xpReward: target === 'PARLIAMENT_MEMBER' ? 10 : 0,
                 })
@@ -171,28 +171,31 @@ export default function NewTaskPage() {
             </select>
           </div>
 
-          {formData.targetAudience === 'PARLIAMENT_MEMBER' && (
+          {(formData.targetAudience === 'PARLIAMENT_MEMBER' || formData.targetAudience === 'PUBLIC') && (
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Министерство *
+                Министерство {formData.targetAudience === 'PUBLIC' ? '(опционально)' : '*'}
               </label>
               <select
-                required
+                required={formData.targetAudience === 'PARLIAMENT_MEMBER'}
                 value={formData.ministry}
                 onChange={(e) => {
                   setFormData({ ...formData, ministry: e.target.value, assignedToId: '' })
                 }}
-                disabled={userRole === 'MINISTER'}
+                disabled={userRole === 'MINISTER' && formData.targetAudience === 'PARLIAMENT_MEMBER'}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100"
               >
-                <option value="">Выберите министерство</option>
+                <option value="">{formData.targetAudience === 'PUBLIC' ? 'Для всех министерств' : 'Выберите министерство'}</option>
                 <option value="LAW_AND_ORDER">Права и порядка</option>
                 <option value="INFORMATION">Информации</option>
                 <option value="SPORT">Спорта</option>
                 <option value="CARE">Заботы</option>
               </select>
-              {userRole === 'MINISTER' && (
+              {userRole === 'MINISTER' && formData.targetAudience === 'PARLIAMENT_MEMBER' && (
                 <p className="text-xs text-gray-500 mt-1">Вы можете создавать задачи только для своего министерства</p>
+              )}
+              {formData.targetAudience === 'PUBLIC' && (
+                <p className="text-xs text-gray-500 mt-1">Если министерство не выбрано, задача будет доступна для всех. Если выбрано - только для участников этого министерства.</p>
               )}
             </div>
           )}

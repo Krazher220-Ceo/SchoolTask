@@ -57,21 +57,34 @@ export async function POST(
       return NextResponse.json({ error: 'Не указано количество EP или EP равен 0' }, { status: 400 })
     }
 
-    // Создаем запись в EventPoint
-    await prisma.eventPoint.create({
-      data: {
+    // Проверяем, не начислялись ли уже баллы (защита от дублирования)
+    const reason = report.type === 'GRADE_PHOTO' 
+      ? `Балл за предмет ${report.subject || 'не указан'}: ${report.grade} баллов`
+      : report.type === 'SOR'
+      ? `СОР по предмету ${report.subject || 'не указан'}: ${report.grade} баллов`
+      : report.taskId
+      ? `Выполнение задачи: ${report.task?.title || 'задача'}`
+      : 'Другое'
+
+    const existingEP = await prisma.eventPoint.findFirst({
+      where: {
         userId: report.userId,
-        amount: report.epAmount,
-        reason: report.type === 'GRADE_PHOTO' 
-          ? `Балл за предмет ${report.subject || 'не указан'}: ${report.grade} баллов`
-          : report.type === 'SOR'
-          ? `СОР по предмету ${report.subject || 'не указан'}: ${report.grade} баллов`
-          : report.taskId
-          ? `Выполнение задачи: ${report.task?.title || 'задача'}`
-          : 'Другое',
         eventId: report.taskId || null,
+        reason: { contains: report.taskId ? report.task?.title : (report.subject || '') },
       },
     })
+
+    // Начисляем EP только если еще не начислялись
+    if (!existingEP) {
+      await prisma.eventPoint.create({
+        data: {
+          userId: report.userId,
+          amount: report.epAmount,
+          reason,
+          eventId: report.taskId || null,
+        },
+      })
+    }
 
     // Получаем общий EP пользователя
     const totalEP = await prisma.eventPoint.aggregate({

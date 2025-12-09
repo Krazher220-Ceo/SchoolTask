@@ -1,12 +1,14 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Check, X, ExternalLink, Video, Link as LinkIcon } from 'lucide-react'
+import { Check, X, ExternalLink, Video, Link as LinkIcon, Trophy } from 'lucide-react'
 
 export default function PublicTasksClient({ instances }: { instances: any[] }) {
   const router = useRouter()
   const [processing, setProcessing] = useState<string | null>(null)
+  const [topData, setTopData] = useState<Record<string, { top: any[], limit: number }>>({})
+  const [loadingTop, setLoadingTop] = useState<Record<string, boolean>>({})
 
   const handleApprove = async (instanceId: string) => {
     const feedback = prompt('Комментарий (необязательно):')
@@ -57,6 +59,21 @@ export default function PublicTasksClient({ instances }: { instances: any[] }) {
       alert('Ошибка при отклонении')
     } finally {
       setProcessing(null)
+    }
+  }
+
+  const loadTop = async (taskId: string, limit: 3 | 5 | 10) => {
+    setLoadingTop(prev => ({ ...prev, [taskId]: true }))
+    try {
+      const res = await fetch(`/api/public-tasks/top?taskId=${taskId}&limit=${limit}`)
+      if (res.ok) {
+        const data = await res.json()
+        setTopData(prev => ({ ...prev, [taskId]: { top: data.top || [], limit } }))
+      }
+    } catch (error) {
+      console.error('Ошибка загрузки топа:', error)
+    } finally {
+      setLoadingTop(prev => ({ ...prev, [taskId]: false }))
     }
   }
 
@@ -123,6 +140,86 @@ export default function PublicTasksClient({ instances }: { instances: any[] }) {
               <div className="text-sm text-gray-500">
                 <p>Награда: {instance.task.epReward} EP</p>
                 <p>Отправлено: {new Date(instance.createdAt).toLocaleString('ru-RU')}</p>
+              </div>
+
+              {/* Кнопка просмотра топа */}
+              <div className="mt-4 pt-4 border-t border-gray-200">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-semibold text-gray-700">Топ выполнивших:</span>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => loadTop(instance.task.id, 3)}
+                      className={`px-2 py-1 text-xs rounded transition ${
+                        topData[instance.task.id]?.limit === 3
+                          ? 'bg-primary-600 text-white'
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }`}
+                    >
+                      Топ 3
+                    </button>
+                    <button
+                      onClick={() => loadTop(instance.task.id, 5)}
+                      className={`px-2 py-1 text-xs rounded transition ${
+                        topData[instance.task.id]?.limit === 5
+                          ? 'bg-primary-600 text-white'
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }`}
+                    >
+                      Топ 5
+                    </button>
+                    <button
+                      onClick={() => loadTop(instance.task.id, 10)}
+                      className={`px-2 py-1 text-xs rounded transition ${
+                        topData[instance.task.id]?.limit === 10
+                          ? 'bg-primary-600 text-white'
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }`}
+                    >
+                      Топ 10
+                    </button>
+                  </div>
+                </div>
+                {loadingTop[instance.task.id] ? (
+                  <p className="text-xs text-gray-500">Загрузка...</p>
+                ) : topData[instance.task.id]?.top && topData[instance.task.id].top.length > 0 ? (
+                  <div className="mt-2 overflow-x-auto">
+                    <table className="w-full text-xs">
+                      <thead>
+                        <tr className="border-b border-gray-200">
+                          <th className="text-left py-2 px-2 font-semibold text-gray-700">Место</th>
+                          <th className="text-left py-2 px-2 font-semibold text-gray-700">Ученик</th>
+                          <th className="text-left py-2 px-2 font-semibold text-gray-700">Класс</th>
+                          <th className="text-left py-2 px-2 font-semibold text-gray-700">Выполнено</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {topData[instance.task.id].top.slice(0, topData[instance.task.id].limit).map((performer: any, index: number) => (
+                          <tr key={performer.id} className="border-b border-gray-100">
+                            <td className="py-2 px-2">
+                              <span className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold ${
+                                index === 0 ? 'bg-yellow-100 text-yellow-700' :
+                                index === 1 ? 'bg-gray-100 text-gray-700' :
+                                index === 2 ? 'bg-orange-100 text-orange-700' :
+                                'bg-blue-100 text-blue-700'
+                              }`}>
+                                {index + 1}
+                              </span>
+                            </td>
+                            <td className="py-2 px-2 font-medium text-gray-900">{performer.user.name}</td>
+                            <td className="py-2 px-2 text-gray-600">{performer.user.fullClass || performer.user.class || '—'}</td>
+                            <td className="py-2 px-2 text-gray-600">
+                              {performer.completedAt 
+                                ? new Date(performer.completedAt).toLocaleDateString('ru-RU')
+                                : '—'}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : topData[instance.task.id] ? (
+                  <p className="text-xs text-gray-500 mt-2">Пока никто не выполнил</p>
+                ) : null}
               </div>
             </div>
           </div>

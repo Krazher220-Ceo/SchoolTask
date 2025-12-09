@@ -198,37 +198,56 @@ export default async function AdminPage() {
             <h3 className="text-xl font-bold text-gray-900 mb-4">
               Отчеты на проверке ({stats.pendingReports})
             </h3>
-            <div className="space-y-3">
-              {pendingReports.length > 0 ? (
-                pendingReports.map((report) => (
-                  <div key={report.id} className="border-2 border-yellow-200 bg-yellow-50 rounded-lg p-4">
-                    <div className="font-semibold text-gray-900 mb-1">{report.task.title}</div>
-                    <div className="text-sm text-gray-600 mb-2">
-                      От: {report.user.name}
-                    </div>
-                    <div className="text-xs text-gray-500 mb-2">
-                      {report.description.substring(0, 100)}...
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-gray-500">
-                        Награда: {report.task.xpReward} XP
-                      </span>
-                      <Link
-                        href={`/sch1/reports/${report.id}`}
-                        className="text-xs bg-primary-600 text-white px-3 py-1 rounded hover:bg-primary-700"
-                      >
-                        Проверить
-                      </Link>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="text-center text-gray-500 py-8">
-                  <CheckCircle className="h-12 w-12 mx-auto mb-3 text-gray-400" />
-                  <p>Нет отчетов на проверке</p>
-                </div>
-              )}
-            </div>
+            {pendingReports.length > 0 ? (
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Задача</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Исполнитель</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Описание</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Награда</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Дата</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Действия</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {pendingReports.map((report) => (
+                      <tr key={report.id} className="hover:bg-gray-50">
+                        <td className="px-4 py-3">
+                          <div className="font-semibold text-gray-900">{report.task.title}</div>
+                        </td>
+                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-600">
+                          {report.user.name}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-600 max-w-xs">
+                          <p className="truncate">{report.description}</p>
+                        </td>
+                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 font-semibold">
+                          {report.task.xpReward} XP
+                        </td>
+                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
+                          {new Date(report.createdAt).toLocaleDateString('ru-RU')}
+                        </td>
+                        <td className="px-4 py-3 whitespace-nowrap">
+                          <Link
+                            href={`/sch1/reports/${report.id}`}
+                            className="bg-primary-600 text-white px-3 py-1 rounded text-sm hover:bg-primary-700 transition"
+                          >
+                            Проверить
+                          </Link>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="text-center text-gray-500 py-8">
+                <CheckCircle className="h-12 w-12 mx-auto mb-3 text-gray-400" />
+                <p>Нет отчетов на проверке</p>
+              </div>
+            )}
           </section>
         </div>
 
