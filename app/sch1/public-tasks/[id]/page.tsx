@@ -65,6 +65,7 @@ export default function PublicTaskPage() {
     if (task && task.taskType === 'PUBLIC') {
       loadTopPerformers(10)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [task])
 
   const handleTakeTask = async () => {
@@ -252,8 +253,8 @@ export default function PublicTaskPage() {
                             : '—'}
                         </td>
                         <td className="py-3 px-4 text-gray-600">
-                          {performer.completedAt 
-                            ? new Date(performer.completedAt).toLocaleString('ru-RU')
+                          {performer.updatedAt 
+                            ? new Date(performer.updatedAt).toLocaleString('ru-RU')
                             : '—'}
                         </td>
                       </tr>

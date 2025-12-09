@@ -359,7 +359,7 @@ export default async function StudentsPage() {
                   href="/sch1/students/report"
                   className="bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition inline-flex items-center"
                 >
-                  <Image className="h-5 w-5 mr-2" />
+                  <Image className="h-5 w-5 mr-2" aria-label="Иконка изображения" />
                   Загрузить фото балла
                 </Link>
               </div>

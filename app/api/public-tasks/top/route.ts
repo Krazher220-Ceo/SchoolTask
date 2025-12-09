@@ -76,7 +76,7 @@ export async function GET(request: NextRequest) {
         },
       },
       orderBy: {
-        completedAt: 'asc', // Первые выполнившие
+        updatedAt: 'asc', // Первые выполнившие (сортируем по времени обновления)
       },
       take: limit,
     })

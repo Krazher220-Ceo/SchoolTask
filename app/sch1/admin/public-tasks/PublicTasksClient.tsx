@@ -208,8 +208,8 @@ export default function PublicTasksClient({ instances }: { instances: any[] }) {
                             <td className="py-2 px-2 font-medium text-gray-900">{performer.user.name}</td>
                             <td className="py-2 px-2 text-gray-600">{performer.user.fullClass || performer.user.class || '—'}</td>
                             <td className="py-2 px-2 text-gray-600">
-                              {performer.completedAt 
-                                ? new Date(performer.completedAt).toLocaleDateString('ru-RU')
+                              {performer.updatedAt 
+                                ? new Date(performer.updatedAt).toLocaleDateString('ru-RU')
                                 : '—'}
                             </td>
                           </tr>
