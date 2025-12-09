@@ -93,7 +93,7 @@ export default function PublicTaskPage() {
 
   const openTelegram = () => {
     // Открываем Telegram бота для загрузки видео
-    const botUsername = process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME || 'your_bot_username'
+    const botUsername = process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME || 'sch_ly1_bot'
     window.open(`https://t.me/${botUsername}`, '_blank')
   }
 

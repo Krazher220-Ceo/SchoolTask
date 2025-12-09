@@ -146,11 +146,133 @@ export async function handleTelegramMessage(update: TelegramUpdate) {
         `Для привязки Telegram аккаунта:\n` +
         `1. Войдите на сайт sch1\n` +
         `2. Перейдите в раздел "Привязка Telegram"\n` +
-        `3. Нажмите кнопку "Привязать Telegram"\n\n` +
-        `Ваш Telegram ID: ${userId}\n` +
+        `3. Введите ваш Telegram ID: ${userId}\n` +
+        `4. Бот отправит вам код подтверждения\n` +
+        `5. Введите код на сайте\n\n` +
         `Или обратитесь к администратору.`
       )
     }
+
+    // Проверяем, не является ли сообщение 6-значным кодом
+    if (/^\d{6}$/.test(text.trim())) {
+      const code = text.trim()
+      // Ищем код в БД
+      const linkCode = await prisma.telegramLinkCode.findUnique({
+        where: { code },
+        include: { user: true },
+      })
+
+      if (!linkCode) {
+        return await sendTelegramMessage(
+          chatId,
+          `❌ Неверный код подтверждения. Проверьте правильность ввода.`
+        )
+      }
+
+      if (linkCode.used) {
+        return await sendTelegramMessage(
+          chatId,
+          `❌ Этот код уже использован. Запросите новый код на сайте.`
+        )
+      }
+
+      if (linkCode.expiresAt < new Date()) {
+        return await sendTelegramMessage(
+          chatId,
+          `❌ Код истек. Запросите новый код на сайте.`
+        )
+      }
+
+      if (linkCode.telegramId !== userId.toString()) {
+        return await sendTelegramMessage(
+          chatId,
+          `❌ Этот код не для вашего Telegram аккаунта.`
+        )
+      }
+
+      // Привязываем аккаунт
+      await prisma.user.update({
+        where: { id: linkCode.userId },
+        data: {
+          telegramId: userId.toString(),
+          telegramUsername: message.from.username,
+        },
+      })
+
+      // Помечаем код как использованный
+      await prisma.telegramLinkCode.update({
+        where: { id: linkCode.id },
+        data: { used: true },
+      })
+
+      return await sendTelegramMessage(
+        chatId,
+        `✅ Telegram аккаунт успешно привязан!\n\n` +
+        `Теперь вы будете получать уведомления о задачах и отчетах.`
+      )
+    }
+
+    // Проверяем, не является ли сообщение ID профиля (cuid формат)
+    if (text.trim().length > 10 && text.trim().length < 30) {
+      // Ищем пользователя по ID
+      const targetUser = await prisma.user.findUnique({
+        where: { id: text.trim() },
+      })
+
+      if (!targetUser) {
+        return await sendTelegramMessage(
+          chatId,
+          `❌ Пользователь с таким ID не найден. Проверьте правильность ввода.`
+        )
+      }
+
+      // Проверяем, не привязан ли уже этот Telegram ID
+      const existingUser = await prisma.user.findUnique({
+        where: { telegramId: userId.toString() },
+      })
+
+      if (existingUser && existingUser.id !== targetUser.id) {
+        return await sendTelegramMessage(
+          chatId,
+          `❌ Этот Telegram аккаунт уже привязан к другому пользователю.`
+        )
+      }
+
+      // Удаляем старые неиспользованные коды для этого пользователя
+      await prisma.telegramLinkCode.deleteMany({
+        where: {
+          userId: targetUser.id,
+          used: false,
+          OR: [
+            { expiresAt: { lt: new Date() } },
+            { telegramId: { not: userId.toString() } },
+          ],
+        },
+      })
+
+      // Генерируем 6-значный код
+      const code = Math.floor(100000 + Math.random() * 900000).toString()
+      const expiresAt = new Date(Date.now() + 10 * 60 * 1000) // 10 минут
+
+      // Создаем код подтверждения
+      await prisma.telegramLinkCode.create({
+        data: {
+          userId: targetUser.id,
+          telegramId: userId.toString(),
+          code,
+          expiresAt,
+        },
+      })
+
+      return await sendTelegramMessage(
+        chatId,
+        `🔐 Код подтверждения\n\n` +
+        `Ваш код: ${code}\n\n` +
+        `Введите этот код на сайте в разделе "Привязка Telegram".\n` +
+        `Код действителен в течение 10 минут.`
+      )
+    }
+
     return await sendTelegramMessage(
       chatId,
       `👋 Привет! Я бот Школьного Парламента.\n\n` +
@@ -159,8 +281,10 @@ export async function handleTelegramMessage(update: TelegramUpdate) {
       `Для привязки:\n` +
       `1. Войдите на сайт\n` +
       `2. Перейдите в раздел "Привязка Telegram"\n` +
-      `3. Нажмите кнопку "Привязать Telegram"\n\n` +
-      `Или обратитесь к администратору.`
+      `3. Введите ваш Telegram ID: ${userId}\n` +
+      `4. Бот отправит вам код подтверждения\n` +
+      `5. Введите код на сайте\n\n` +
+      `Или отправьте ID вашего профиля боту, и он отправит вам код.`
     )
   }
 

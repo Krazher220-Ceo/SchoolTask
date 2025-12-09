@@ -49,6 +49,7 @@ model User {
   reviewedRegistrationRequests RegistrationRequest[]  @relation("RegistrationRequestReviewer")
   reviewedPublicTaskInstances  PublicTaskInstance[]   @relation("PublicTaskInstanceReviewer")
   eventsCreated                Event[]                 @relation("EventCreatedBy")
+  telegramLinkCodes            TelegramLinkCode[]
 
   @@index([email])
   @@index([telegramId])
@@ -435,4 +436,22 @@ model SiteStats {
   description       String?  // Описание
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
+}
+
+// Коды подтверждения для привязки Telegram аккаунта
+model TelegramLinkCode {
+  id        String   @id @default(cuid())
+  userId    String   // ID пользователя на сайте
+  telegramId String  // Telegram ID пользователя
+  code      String   // 6-значный код подтверждения
+  expiresAt DateTime // Время истечения (10 минут)
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([code])
+  @@index([userId])
+  @@index([telegramId])
+  @@index([code])
 }
