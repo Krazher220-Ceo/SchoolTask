@@ -1,0 +1,426 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Пользователи системы
+model User {
+  id               String   @id @default(cuid())
+  email            String   @unique
+  password         String? // null для внешних пользователей
+  name             String
+  role             String   @default("STUDENT") // ADMIN, MINISTER, MEMBER, STUDENT
+  class            String? // Класс ученика (только цифра, например "9")
+  classLetter      String? // Литер класса (например "Д", без кавычек)
+  fullClass        String? // Полный класс (например "9Д") - вычисляется автоматически
+  avatar           String?
+  telegramId       String?  @unique // Telegram ID для бота
+  telegramUsername String? // Telegram username
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  // Связи
+  parliamentMember             ParliamentMember?
+  tasksAssigned                Task[]                 @relation("TaskAssignedTo")
+  tasksCreated                 Task[]                 @relation("TaskCreatedBy")
+  taskReports                  TaskReport[]
+  studentReports               StudentReport[]
+  reviewedReports              StudentReport[]        @relation("StudentReportReviewer")
+  xpHistory                    XPHistory[]
+  badges                       UserBadge[]
+  eventPoints                  EventPoint[]
+  achievements                 Achievement[]
+  complimentsSent              Compliment[]           @relation("ComplimentSender")
+  complimentsReceived          Compliment[]           @relation("ComplimentReceiver")
+  mentors                      Mentor[]               @relation("Mentor")
+  mentees                      Mentor[]               @relation("Mentee")
+  quests                       QuestProgress[]
+  ratings                      Rating[]
+  telegramNotifications        TelegramNotification[]
+  registrationRequest          RegistrationRequest?
+  publicTaskInstances          PublicTaskInstance[]
+  reviewedRegistrationRequests RegistrationRequest[]  @relation("RegistrationRequestReviewer")
+  reviewedPublicTaskInstances  PublicTaskInstance[]   @relation("PublicTaskInstanceReviewer")
+
+  @@index([email])
+  @@index([telegramId])
+}
+
+// Члены парламента
+model ParliamentMember {
+  id       String   @id @default(cuid())
+  userId   String   @unique
+  ministry String // LAW_AND_ORDER, INFORMATION, SPORT, CARE
+  position String? // Должность (министр, участник, мобилограф)
+  shift    String? // Смена (1 смена, 2 смена)
+  xp       Int      @default(0)
+  level    Int      @default(1)
+  rank     String   @default("Новичок")
+  joinedAt DateTime @default(now())
+  isActive Boolean  @default(true)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([ministry])
+  @@index([xp])
+}
+
+// Задачи
+model Task {
+  id             String    @id @default(cuid())
+  title          String
+  description    String
+  ministry       String? // LAW_AND_ORDER, INFORMATION, SPORT, CARE, null для задач ученикам
+  assignedToId   String?
+  createdById    String
+  status         String    @default("NEW") // NEW, IN_PROGRESS, IN_REVIEW, COMPLETED, REJECTED
+  priority       String    @default("MEDIUM") // LOW, MEDIUM, HIGH, CRITICAL
+  deadline       DateTime?
+  xpReward       Int       @default(10) // Для участников парламента
+  epReward       Int? // Для учеников (EP)
+  targetAudience String    @default("PARLIAMENT_MEMBER") // PARLIAMENT_MEMBER, STUDENT, PUBLIC
+  taskType       String    @default("PRIVATE") // PRIVATE (назначена конкретному), PUBLIC (общественная - каждый берет свою копию)
+  tags           String? // JSON массив тегов
+  attachments    String? // JSON массив ссылок
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  assignedTo          User?                @relation("TaskAssignedTo", fields: [assignedToId], references: [id])
+  createdBy           User                 @relation("TaskCreatedBy", fields: [createdById], references: [id])
+  reports             TaskReport[]
+  studentReports      StudentReport[]
+  publicTaskInstances PublicTaskInstance[] // Инстансы общественных задач
+
+  @@index([ministry])
+  @@index([status])
+  @@index([assignedToId])
+  @@index([targetAudience])
+  @@index([taskType])
+}
+
+// Отчеты по задачам
+model TaskReport {
+  id          String   @id @default(cuid())
+  taskId      String
+  userId      String
+  description String
+  photos      String? // JSON массив ссылок
+  videos      String? // JSON массив ссылок
+  links       String? // JSON массив ссылок
+  timeSpent   Int? // Минуты
+  status      String   @default("PENDING") // PENDING, APPROVED, NEEDS_REVISION, REJECTED
+  quality     Int? // 1-5 звезд
+  feedback    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([taskId])
+  @@index([status])
+}
+
+// История начисления XP
+model XPHistory {
+  id        String   @id @default(cuid())
+  userId    String
+  amount    Int
+  reason    String
+  source    String? // task, quest, bonus, etc.
+  sourceId  String? // ID источника (taskId, questId)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([createdAt])
+}
+
+// Бейджи
+model Badge {
+  id          String  @id @default(cuid())
+  name        String  @unique
+  description String
+  icon        String
+  rarity      String  @default("COMMON") // COMMON, RARE, EPIC, LEGENDARY
+  category    String
+  condition   String? // JSON условие для получения
+
+  userBadges UserBadge[]
+}
+
+// Бейджи пользователей
+model UserBadge {
+  id       String   @id @default(cuid())
+  userId   String
+  badgeId  String
+  earnedAt DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badge Badge @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, badgeId])
+  @@index([userId])
+}
+
+// Баллы за мероприятия (для всех учеников)
+model EventPoint {
+  id        String   @id @default(cuid())
+  userId    String
+  amount    Int
+  reason    String
+  eventId   String?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+}
+
+// Достижения
+model Achievement {
+  id          String   @id @default(cuid())
+  userId      String
+  title       String
+  description String
+  icon        String?
+  earnedAt    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+}
+
+// Комплименты
+model Compliment {
+  id        String   @id @default(cuid())
+  fromId    String
+  toId      String
+  message   String
+  type      String // "thanks", "great_work", "inspire"
+  createdAt DateTime @default(now())
+
+  from User @relation("ComplimentSender", fields: [fromId], references: [id])
+  to   User @relation("ComplimentReceiver", fields: [toId], references: [id])
+
+  @@index([toId])
+}
+
+// Менторство
+model Mentor {
+  id        String    @id @default(cuid())
+  mentorId  String
+  menteeId  String
+  startedAt DateTime  @default(now())
+  endedAt   DateTime?
+  isActive  Boolean   @default(true)
+
+  mentor User @relation("Mentor", fields: [mentorId], references: [id])
+  mentee User @relation("Mentee", fields: [menteeId], references: [id])
+
+  @@unique([mentorId, menteeId])
+  @@index([mentorId])
+  @@index([menteeId])
+}
+
+// Квесты
+model Quest {
+  id          String    @id @default(cuid())
+  name        String
+  description String
+  type        String // DAILY, WEEKLY, SEASONAL, EVENT
+  xpReward    Int
+  condition   String // JSON условие
+  isActive    Boolean   @default(true)
+  startsAt    DateTime?
+  endsAt      DateTime?
+
+  progress QuestProgress[]
+}
+
+// Прогресс по квестам
+model QuestProgress {
+  id          String    @id @default(cuid())
+  questId     String
+  userId      String
+  progress    Int       @default(0)
+  target      Int
+  completed   Boolean   @default(false)
+  completedAt DateTime?
+
+  quest Quest @relation(fields: [questId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id])
+
+  @@unique([questId, userId])
+  @@index([userId])
+}
+
+// Рейтинги
+model Rating {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String // XP, EP
+  period    String // "month", "quarter", "year", "all"
+  position  Int
+  value     Int // XP или EP
+  ministry  String? // LAW_AND_ORDER, INFORMATION, SPORT, CARE
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([type, period, position])
+}
+
+// Мероприятия
+model Event {
+  id              String   @id @default(cuid())
+  title           String
+  description     String
+  ministry        String? // LAW_AND_ORDER, INFORMATION, SPORT, CARE
+  category        String
+  date            DateTime
+  location        String?
+  maxParticipants Int?
+  status          String   @default("UPCOMING") // UPCOMING, IN_PROGRESS, COMPLETED, CANCELLED
+  createdById     String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  participants EventParticipant[]
+  photos       String? // JSON массив ссылок
+}
+
+// Участники мероприятий
+model EventParticipant {
+  id           String   @id @default(cuid())
+  eventId      String
+  userId       String
+  registeredAt DateTime @default(now())
+  attended     Boolean  @default(false)
+  epEarned     Int      @default(0)
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, userId])
+  @@index([userId])
+}
+
+// Идеи от учеников
+model Idea {
+  id            String   @id @default(cuid())
+  title         String
+  description   String
+  category      String
+  submittedById String
+  status        String   @default("PENDING") // PENDING, REVIEWING, APPROVED, REJECTED, IMPLEMENTED
+  ministry      String? // LAW_AND_ORDER, INFORMATION, SPORT, CARE
+  feedback      String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([status])
+  @@index([submittedById])
+}
+
+// Отчеты учеников (фото баллов, СОРы и т.д.)
+model StudentReport {
+  id             String   @id @default(cuid())
+  userId         String
+  taskId         String? // Если это отчет по задаче
+  type           String // "GRADE_PHOTO", "SOR", "TASK_COMPLETION"
+  subject        String? // Предмет (для GRADE_PHOTO, SOR)
+  grade          Int? // Балл за предмет (10 баллов = 9 EP)
+  description    String?
+  photoUrl       String // Ссылка на фото
+  telegramFileId String? // ID файла в Telegram
+  epAmount       Int? // Начисленные EP (рассчитывается автоматически)
+  status         String   @default("PENDING") // PENDING, APPROVED, REJECTED
+  feedback       String?
+  reviewedById   String? // Кто проверил
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  user       User  @relation(fields: [userId], references: [id])
+  task       Task? @relation(fields: [taskId], references: [id], onDelete: SetNull)
+  reviewedBy User? @relation("StudentReportReviewer", fields: [reviewedById], references: [id])
+
+  @@index([userId])
+  @@index([status])
+  @@index([type])
+}
+
+// Telegram уведомления
+model TelegramNotification {
+  id        String    @id @default(cuid())
+  userId    String
+  type      String // "TASK_ASSIGNED", "TASK_REMINDER", "REPORT_APPROVED", "REPORT_REJECTED"
+  message   String
+  taskId    String?
+  reportId  String?
+  sent      Boolean   @default(false)
+  sentAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([sent])
+}
+
+// Заявки на регистрацию
+model RegistrationRequest {
+  id              String    @id @default(cuid())
+  fullName        String // ФИО
+  phone           String // Телефон
+  email           String // Почта
+  login           String // Логин
+  bilimClassLogin String? // Логин от Bilim class
+  class           String? // Класс (например "9")
+  classLetter     String? // Литер (например "Д", без кавычек)
+  status          String    @default("PENDING") // PENDING, APPROVED, REJECTED
+  reviewedById    String? // Кто рассмотрел
+  reviewedAt      DateTime?
+  feedback        String? // Комментарий при отклонении
+  userId          String?   @unique // ID созданного пользователя (если одобрено)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  reviewer User? @relation("RegistrationRequestReviewer", fields: [reviewedById], references: [id])
+  user     User? @relation(fields: [userId], references: [id])
+
+  @@index([status])
+  @@index([email])
+  @@index([login])
+}
+
+// Инстансы общественных задач (каждый пользователь берет свою копию)
+model PublicTaskInstance {
+  id           String   @id @default(cuid())
+  taskId       String
+  userId       String
+  status       String   @default("NEW") // NEW, IN_PROGRESS, IN_REVIEW, COMPLETED, REJECTED
+  videoUrl     String? // Ссылка на видео (через Telegram)
+  workLink     String? // Ссылка на работу
+  description  String? // Описание выполненной работы
+  feedback     String?
+  reviewedById String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  task     Task  @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  user     User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reviewer User? @relation("PublicTaskInstanceReviewer", fields: [reviewedById], references: [id])
+
+  @@unique([taskId, userId]) // Один пользователь может взять задачу только один раз
+  @@index([taskId])
+  @@index([userId])
+  @@index([status])
+}

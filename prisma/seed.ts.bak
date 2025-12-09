@@ -1,0 +1,427 @@
+import { PrismaClient } from '@prisma/client'
+import * as bcrypt from 'bcryptjs'
+
+const prisma = new PrismaClient()
+
+async function main() {
+  console.log('🌱 Начинаем заполнение базы данных...')
+
+  // Удаляем всех пользователей кроме админа
+  const adminEmail = 'alikhan@sch1.kz'
+  const existingAdmin = await prisma.user.findUnique({
+    where: { email: adminEmail },
+  })
+
+  // Удаляем всех пользователей
+  await prisma.user.deleteMany({
+    where: {
+      email: { not: adminEmail },
+    },
+  })
+  console.log('✅ Удалены все пользователи кроме админа')
+
+  // Хешируем пароль
+  const hashedPassword = await bcrypt.hash('password123', 10)
+
+  // Создаем или обновляем Алихана (Администратор)
+  const alikhan = await prisma.user.upsert({
+    where: { email: adminEmail },
+    update: {
+      password: hashedPassword,
+      name: 'Кабдуалы Алихан',
+      role: 'ADMIN',
+      class: '11',
+      classLetter: null,
+      fullClass: '11',
+    },
+    create: {
+      email: adminEmail,
+      password: hashedPassword,
+      name: 'Кабдуалы Алихан',
+      role: 'ADMIN',
+      class: '11',
+      classLetter: null,
+      fullClass: '11',
+      parliamentMember: {
+        create: {
+          ministry: 'INFORMATION',
+          position: 'Председатель',
+          xp: 0,
+          level: 1,
+          rank: 'Новичок',
+        },
+      },
+    },
+  })
+  console.log('✅ Создан/обновлен Алихан (Администратор)')
+
+  // Остальные пользователи не создаются - только админ
+  console.log('✅ База данных очищена, оставлен только администратор')
+
+  // Создаем базовые бейджи
+  const badges = [
+    { name: 'Первые шаги', description: 'Выполнил первую задачу', icon: '🎯', rarity: 'COMMON', category: 'tasks' },
+    { name: 'Спринтер', description: 'Выполнил 5 задач досрочно', icon: '⚡', rarity: 'RARE', category: 'speed' },
+    { name: 'Перфекционист', description: '10 отчетов приняты с первого раза', icon: '✨', rarity: 'EPIC', category: 'quality' },
+    { name: 'Командный игрок', description: 'Помог 5 разным участникам', icon: '🤝', rarity: 'RARE', category: 'teamwork' },
+    { name: 'Креативщик', description: 'Предложил 5 реализованных идей', icon: '💡', rarity: 'LEGENDARY', category: 'creativity' },
+    { name: 'Фотограф', description: 'Загрузил 100 фото в отчеты', icon: '📷', rarity: 'RARE', category: 'media' },
+    { name: 'Оператор', description: 'Загрузил 20 видео', icon: '🎥', rarity: 'EPIC', category: 'media' },
+    { name: 'Неутомимый', description: 'Выполнил 50 задач', icon: '🔥', rarity: 'EPIC', category: 'tasks' },
+    { name: 'Столп парламента', description: '1 год активного участия', icon: '🏛️', rarity: 'LEGENDARY', category: 'loyalty' },
+  ]
+
+  for (const badge of badges) {
+    await prisma.badge.upsert({
+      where: { name: badge.name },
+      update: {},
+      create: badge,
+    })
+  }
+  console.log(`✅ Создано ${badges.length} бейджей`)
+
+  // Создаем базовые квесты
+  const quests = [
+    { name: 'Утренний старт', description: 'Проверить задачи до 9:00', type: 'DAILY', xpReward: 3, condition: '{}' },
+    { name: 'Командир', description: 'Помочь 1 участнику', type: 'DAILY', xpReward: 5, condition: '{}' },
+    { name: 'Продуктивный день', description: 'Выполнить 1 задачу', type: 'DAILY', xpReward: 10, condition: '{}' },
+    { name: 'Продуктивная неделя', description: 'Выполнить 5 задач за неделю', type: 'WEEKLY', xpReward: 50, condition: '{}' },
+    { name: 'Социальный', description: 'Взаимодействие с 3 министерствами', type: 'WEEKLY', xpReward: 25, condition: '{}' },
+    { name: 'Креатор', description: 'Создать 3 поста/материала', type: 'WEEKLY', xpReward: 30, condition: '{}' },
+  ]
+
+  for (const quest of quests) {
+    await prisma.quest.create({
+      data: quest,
+    }).catch(() => {
+      // Игнорируем ошибки, если квест уже существует
+    })
+  }
+  console.log(`✅ Создано ${quests.length} квестов`)
+      name: 'Нургалиева Алина',
+      email: 'nurgalieva.alina@sch1.kz',
+      role: 'MINISTER' as const,
+      ministry: 'LAW_AND_ORDER' as const,
+      position: 'Министр',
+      xp: 1200,
+      level: 5,
+      rank: 'Эксперт',
+    },
+    members: [
+      { name: 'Усатов Вячеслав', email: 'usatov.vyacheslav@sch1.kz' },
+      { name: 'Жаксылык Нурай', email: 'zhaksylyk.nuray@sch1.kz' },
+      { name: 'Бражников Ярослав', email: 'brazhnikov.yaroslav@sch1.kz' },
+      { name: 'Жумабек Али', email: 'zhumabek.ali@sch1.kz' },
+      { name: 'Нурмагамбетов Алан', email: 'nurmagambetov.alan@sch1.kz' },
+    ],
+  }
+
+  // Создаем министра "Права и порядка"
+  const ministerLaw = await prisma.user.upsert({
+    where: { email: ministryLaw.minister.email },
+    update: {},
+    create: {
+      email: ministryLaw.minister.email,
+      password: hashedPassword,
+      name: ministryLaw.minister.name,
+      role: ministryLaw.minister.role,
+      class: '11',
+      parliamentMember: {
+        create: {
+          ministry: ministryLaw.minister.ministry,
+          position: ministryLaw.minister.position,
+          xp: ministryLaw.minister.xp,
+          level: ministryLaw.minister.level,
+          rank: ministryLaw.minister.rank,
+        },
+      },
+    },
+  })
+  console.log(`✅ Создан министр: ${ministryLaw.minister.name}`)
+
+  // Создаем членов министерства "Права и порядка"
+  for (const member of ministryLaw.members) {
+    await prisma.user.upsert({
+      where: { email: member.email },
+      update: {},
+      create: {
+        email: member.email,
+        password: hashedPassword,
+        name: member.name,
+        role: 'MEMBER',
+        class: '11',
+        parliamentMember: {
+          create: {
+            ministry: 'LAW_AND_ORDER',
+            position: 'Участник',
+            xp: Math.floor(Math.random() * 500) + 100,
+            level: Math.floor(Math.random() * 3) + 2,
+            rank: 'Активист',
+          },
+        },
+      },
+    })
+  }
+  console.log(`✅ Создано ${ministryLaw.members.length} членов министерства "Права и порядка"`)
+
+  // Министерство "Информации" (Алихан уже создан, добавляем членов)
+  const ministryInfo = {
+    members: [
+      { name: 'Ержанов Даниал', email: 'yerzhanov.danial@sch1.kz', shift: null },
+      { name: 'Сеитбек Багдат', email: 'seitbek.bagdat@sch1.kz', shift: '2 смена' },
+      { name: 'Васильев Дмитрий', email: 'vasiliev.dmitry@sch1.kz', shift: '2 смена' },
+      { name: 'Широв Назар', email: 'shirov.nazar@sch1.kz', shift: null },
+    ],
+    videographers: [
+      { name: 'Айлана', email: 'aylana@sch1.kz' },
+      { name: 'Аксулу', email: 'aksulu@sch1.kz' },
+      { name: 'Рауан', email: 'rauan@sch1.kz' },
+      { name: 'Томирис', email: 'tomiris@sch1.kz' },
+      { name: 'Инзара', email: 'inzara@sch1.kz' },
+      { name: 'Амина', email: 'amina@sch1.kz' },
+    ],
+  }
+
+  // Создаем членов министерства "Информации"
+  for (const member of ministryInfo.members) {
+    await prisma.user.upsert({
+      where: { email: member.email },
+      update: {},
+      create: {
+        email: member.email,
+        password: hashedPassword,
+        name: member.name,
+        role: 'MEMBER',
+        class: '11',
+        parliamentMember: {
+          create: {
+            ministry: 'INFORMATION',
+            position: 'Участник',
+            shift: member.shift,
+            xp: Math.floor(Math.random() * 500) + 100,
+            level: Math.floor(Math.random() * 3) + 2,
+            rank: 'Активист',
+          },
+        },
+      },
+    })
+  }
+
+  // Создаем мобилографов
+  for (const videographer of ministryInfo.videographers) {
+    await prisma.user.upsert({
+      where: { email: videographer.email },
+      update: {},
+      create: {
+        email: videographer.email,
+        password: hashedPassword,
+        name: videographer.name,
+        role: 'MEMBER',
+        class: '11',
+        parliamentMember: {
+          create: {
+            ministry: 'INFORMATION',
+            position: 'Мобилограф',
+            xp: Math.floor(Math.random() * 400) + 50,
+            level: Math.floor(Math.random() * 2) + 1,
+            rank: 'Новичок',
+          },
+        },
+      },
+    })
+  }
+  console.log(`✅ Создано ${ministryInfo.members.length} членов и ${ministryInfo.videographers.length} мобилографов министерства "Информации"`)
+
+  // Министерство "Спорта"
+  const ministrySport = {
+    minister: {
+      name: 'Мамедов Али',
+      email: 'mamedov.ali@sch1.kz',
+      role: 'MINISTER' as const,
+      ministry: 'SPORT' as const,
+      position: 'Министр',
+      xp: 1100,
+      level: 5,
+      rank: 'Эксперт',
+    },
+    members: [
+      { name: 'Яворский Артур', email: 'yavorsky.artur@sch1.kz' },
+      { name: 'Ирсаин Ильяс', email: 'irsain.ilyas@sch1.kz' },
+      { name: 'Абдусалим Алишер', email: 'abdusalim.alisher@sch1.kz' },
+    ],
+  }
+
+  // Создаем министра "Спорта"
+  const ministerSport = await prisma.user.upsert({
+    where: { email: ministrySport.minister.email },
+    update: {},
+    create: {
+      email: ministrySport.minister.email,
+      password: hashedPassword,
+      name: ministrySport.minister.name,
+      role: ministrySport.minister.role,
+      class: '11',
+      parliamentMember: {
+        create: {
+          ministry: ministrySport.minister.ministry,
+          position: ministrySport.minister.position,
+          xp: ministrySport.minister.xp,
+          level: ministrySport.minister.level,
+          rank: ministrySport.minister.rank,
+        },
+      },
+    },
+  })
+  console.log(`✅ Создан министр: ${ministrySport.minister.name}`)
+
+  // Создаем членов министерства "Спорта"
+  for (const member of ministrySport.members) {
+    await prisma.user.upsert({
+      where: { email: member.email },
+      update: {},
+      create: {
+        email: member.email,
+        password: hashedPassword,
+        name: member.name,
+        role: 'MEMBER',
+        class: '11',
+        parliamentMember: {
+          create: {
+            ministry: 'SPORT',
+            position: 'Участник',
+            xp: Math.floor(Math.random() * 500) + 100,
+            level: Math.floor(Math.random() * 3) + 2,
+            rank: 'Активист',
+          },
+        },
+      },
+    })
+  }
+  console.log(`✅ Создано ${ministrySport.members.length} членов министерства "Спорта"`)
+
+  // Министерство "Заботы"
+  const ministryCare = {
+    minister: {
+      name: 'Курмангалиева Айдина',
+      email: 'kurmangalieva.aidina@sch1.kz',
+      role: 'MINISTER' as const,
+      ministry: 'CARE' as const,
+      position: 'Министр',
+      shift: '2 смена',
+      xp: 1050,
+      level: 5,
+      rank: 'Эксперт',
+    },
+    members: [
+      { name: 'Овсеенко Аделия', email: 'ovseenko.adelia@sch1.kz' },
+      { name: 'Тлеубаева Аделя', email: 'tleubaeva.adelya@sch1.kz' },
+      { name: 'Аманбай Адина', email: 'amanbay.adina@sch1.kz' },
+      { name: 'Естыбаева Аруана', email: 'estybaeva.aruan@sch1.kz' },
+    ],
+  }
+
+  // Создаем министра "Заботы"
+  const ministerCare = await prisma.user.upsert({
+    where: { email: ministryCare.minister.email },
+    update: {},
+    create: {
+      email: ministryCare.minister.email,
+      password: hashedPassword,
+      name: ministryCare.minister.name,
+      role: ministryCare.minister.role,
+      class: '11',
+      parliamentMember: {
+        create: {
+          ministry: ministryCare.minister.ministry,
+          position: ministryCare.minister.position,
+          shift: ministryCare.minister.shift,
+          xp: ministryCare.minister.xp,
+          level: ministryCare.minister.level,
+          rank: ministryCare.minister.rank,
+        },
+      },
+    },
+  })
+  console.log(`✅ Создан министр: ${ministryCare.minister.name}`)
+
+  // Создаем членов министерства "Заботы"
+  for (const member of ministryCare.members) {
+    await prisma.user.upsert({
+      where: { email: member.email },
+      update: {},
+      create: {
+        email: member.email,
+        password: hashedPassword,
+        name: member.name,
+        role: 'MEMBER',
+        class: '11',
+        parliamentMember: {
+          create: {
+            ministry: 'CARE',
+            position: 'Участник',
+            xp: Math.floor(Math.random() * 500) + 100,
+            level: Math.floor(Math.random() * 3) + 2,
+            rank: 'Активист',
+          },
+        },
+      },
+    })
+  }
+  console.log(`✅ Создано ${ministryCare.members.length} членов министерства "Заботы"`)
+
+  // Создаем базовые бейджи
+  const badges = [
+    { name: 'Первые шаги', description: 'Выполнил первую задачу', icon: '🎯', rarity: 'COMMON', category: 'tasks' },
+    { name: 'Спринтер', description: 'Выполнил 5 задач досрочно', icon: '⚡', rarity: 'RARE', category: 'speed' },
+    { name: 'Перфекционист', description: '10 отчетов приняты с первого раза', icon: '✨', rarity: 'EPIC', category: 'quality' },
+    { name: 'Командный игрок', description: 'Помог 5 разным участникам', icon: '🤝', rarity: 'RARE', category: 'teamwork' },
+    { name: 'Креативщик', description: 'Предложил 5 реализованных идей', icon: '💡', rarity: 'LEGENDARY', category: 'creativity' },
+    { name: 'Фотограф', description: 'Загрузил 100 фото в отчеты', icon: '📷', rarity: 'RARE', category: 'media' },
+    { name: 'Оператор', description: 'Загрузил 20 видео', icon: '🎥', rarity: 'EPIC', category: 'media' },
+    { name: 'Неутомимый', description: 'Выполнил 50 задач', icon: '🔥', rarity: 'EPIC', category: 'tasks' },
+    { name: 'Столп парламента', description: '1 год активного участия', icon: '🏛️', rarity: 'LEGENDARY', category: 'loyalty' },
+  ]
+
+  for (const badge of badges) {
+    await prisma.badge.upsert({
+      where: { name: badge.name },
+      update: {},
+      create: badge,
+    })
+  }
+  console.log(`✅ Создано ${badges.length} бейджей`)
+
+  // Создаем базовые квесты
+  const quests = [
+    { name: 'Утренний старт', description: 'Проверить задачи до 9:00', type: 'DAILY', xpReward: 3, condition: '{}' },
+    { name: 'Командир', description: 'Помочь 1 участнику', type: 'DAILY', xpReward: 5, condition: '{}' },
+    { name: 'Продуктивный день', description: 'Выполнить 1 задачу', type: 'DAILY', xpReward: 10, condition: '{}' },
+    { name: 'Продуктивная неделя', description: 'Выполнить 5 задач за неделю', type: 'WEEKLY', xpReward: 50, condition: '{}' },
+    { name: 'Социальный', description: 'Взаимодействие с 3 министерствами', type: 'WEEKLY', xpReward: 25, condition: '{}' },
+    { name: 'Креатор', description: 'Создать 3 поста/материала', type: 'WEEKLY', xpReward: 30, condition: '{}' },
+  ]
+
+  for (const quest of quests) {
+    await prisma.quest.create({
+      data: quest,
+    }).catch(() => {
+      // Игнорируем ошибки, если квест уже существует
+    })
+  }
+  console.log(`✅ Создано ${quests.length} квестов`)
+
+  console.log('🎉 База данных успешно заполнена!')
+  console.log('\n📝 Данные для входа:')
+  console.log('Email: alikhan@sch1.kz')
+  console.log('Password: password123')
+}
+
+main()
+  .catch((e) => {
+    console.error('❌ Ошибка при заполнении базы данных:', e)
+    process.exit(1)
+  })
+  .finally(async () => {
+    await prisma.$disconnect()
+  })
+
