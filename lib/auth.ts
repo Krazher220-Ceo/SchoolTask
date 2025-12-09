@@ -17,9 +17,26 @@ export const authOptions: NextAuthOptions = {
             return null
           }
 
-          const user = await prisma.user.findUnique({
-            where: { email: credentials.email },
-            include: { parliamentMember: true },
+          // Ищем пользователя по email или login
+          const user = await prisma.user.findFirst({
+            where: {
+              OR: [
+                { email: credentials.email },
+                {
+                  registrationRequest: {
+                    login: credentials.email,
+                  },
+                },
+              ],
+            },
+            include: { 
+              parliamentMember: true,
+              registrationRequest: {
+                select: {
+                  login: true,
+                },
+              },
+            },
           })
 
           if (!user || !user.password) {

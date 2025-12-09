@@ -48,8 +48,11 @@ export async function POST(
       return NextResponse.json({ error: 'Инстанс задачи не найден' }, { status: 404 })
     }
 
+    // Строгая проверка статуса - только IN_REVIEW можно одобрить
     if (instance.status !== 'IN_REVIEW') {
-      return NextResponse.json({ error: 'Задача не на проверке' }, { status: 400 })
+      return NextResponse.json({ 
+        error: `Задача не на проверке. Текущий статус: ${instance.status}. Можно одобрить только задачи со статусом IN_REVIEW.` 
+      }, { status: 400 })
     }
 
     // Проверяем, не начислялись ли уже баллы (защита от дублирования)

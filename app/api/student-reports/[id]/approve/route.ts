@@ -48,8 +48,11 @@ export async function POST(
       return NextResponse.json({ error: 'Отчет не найден' }, { status: 404 })
     }
 
-    if (report.status === 'APPROVED') {
-      return NextResponse.json({ error: 'Отчет уже одобрен' }, { status: 400 })
+    // Строгая проверка статуса - только PENDING можно одобрить
+    if (report.status !== 'PENDING') {
+      return NextResponse.json({ 
+        error: `Отчет не на проверке. Текущий статус: ${report.status}. Можно одобрить только отчеты со статусом PENDING.` 
+      }, { status: 400 })
     }
 
     // Проверяем, что EP рассчитан
