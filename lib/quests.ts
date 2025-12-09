@@ -33,6 +33,7 @@ export async function getDailyQuestsForUser(userId: string) {
   })
 
   if (allDailyQuests.length === 0) {
+    // Если нет квестов, возвращаем пустой массив (не ошибка)
     return []
   }
 

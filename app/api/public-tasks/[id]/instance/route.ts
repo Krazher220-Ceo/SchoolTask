@@ -23,8 +23,9 @@ export async function GET(
       },
     })
 
+    // Если инстанс не найден, возвращаем null вместо 404 (это нормальная ситуация)
     if (!instance) {
-      return NextResponse.json({ error: 'Инстанс не найден' }, { status: 404 })
+      return NextResponse.json({ instance: null }, { status: 200 })
     }
 
     return NextResponse.json(instance)

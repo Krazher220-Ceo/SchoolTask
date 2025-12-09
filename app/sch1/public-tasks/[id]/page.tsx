@@ -37,7 +37,8 @@ export default function PublicTaskPage() {
           fetch(`/api/public-tasks/${taskId}/instance`)
             .then(res => res.ok ? res.json() : null)
             .then(instanceData => {
-              if (instanceData) {
+              // Проверяем, что instanceData существует и не null
+              if (instanceData && instanceData.id) {
                 setInstance(instanceData)
                 if (instanceData.videoUrl || instanceData.workLink) {
                   setFormData({
@@ -48,7 +49,9 @@ export default function PublicTaskPage() {
                 }
               }
             })
-            .catch(() => {})
+            .catch(() => {
+              // Игнорируем ошибки при загрузке инстанса (это нормально, если пользователь еще не взял задачу)
+            })
         }
         setLoading(false)
       })

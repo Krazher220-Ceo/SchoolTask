@@ -17,8 +17,13 @@ export default async function StudentQuestsPage() {
     redirect('/sch1/dashboard')
   }
 
-  // Убеждаемся, что квесты назначены
-  await ensureQuestsAssigned(session.user.id)
+  // Убеждаемся, что квесты назначены (с обработкой ошибок)
+  try {
+    await ensureQuestsAssigned(session.user.id)
+  } catch (error) {
+    console.error('Ошибка при назначении квестов:', error)
+    // Продолжаем выполнение даже если есть ошибка
+  }
 
   // Получаем прогресс выполнения квестов
   const assignedQuests = await prisma.assignedQuest.findMany({
