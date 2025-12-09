@@ -94,16 +94,26 @@ function securityMiddleware(req: NextRequest) {
   return null // Продолжаем обработку
 }
 
-// Auth middleware wrapper
-const authMiddlewareWrapper = withAuth(
+// Auth middleware с withAuth
+export default withAuth(
   function middleware(req) {
-    const token = req.nextauth.token
+    const identifier = trackRequestStart(req)
     const path = req.nextUrl.pathname
+
+    // Сначала проверяем безопасность
+    const securityResponse = securityMiddleware(req)
+    if (securityResponse) {
+      clearRequestTracking(identifier)
+      return securityResponse
+    }
+
+    const token = req.nextauth.token
 
     // Если пользователь авторизован и пытается зайти на публичную страницу sch1, редиректим в dashboard
     if (token && path === '/sch1') {
       const response = NextResponse.redirect(new URL('/sch1/dashboard', req.url))
       addSecurityHeaders(response)
+      clearRequestTracking(identifier)
       return response
     }
 
@@ -111,12 +121,14 @@ const authMiddlewareWrapper = withAuth(
     if (token && path === '/sch1/login') {
       const response = NextResponse.redirect(new URL('/sch1/dashboard', req.url))
       addSecurityHeaders(response)
+      clearRequestTracking(identifier)
       return response
     }
 
     // Применяем security headers
     const response = NextResponse.next()
     addSecurityHeaders(response)
+    clearRequestTracking(identifier)
     return response
   },
   {
@@ -144,39 +156,6 @@ const authMiddlewareWrapper = withAuth(
     },
   }
 )
-
-// Главный middleware
-export default function middleware(req: NextRequest) {
-  const identifier = trackRequestStart(req)
-
-  // Сначала проверяем безопасность
-  const securityResponse = securityMiddleware(req)
-  if (securityResponse) {
-    clearRequestTracking(identifier)
-    return securityResponse
-  }
-
-  // Затем применяем auth middleware для страниц sch1
-  if (req.nextUrl.pathname.startsWith('/sch1/')) {
-    try {
-      const response = authMiddlewareWrapper(req)
-      clearRequestTracking(identifier)
-      return response
-    } catch (error) {
-      clearRequestTracking(identifier)
-      const response = NextResponse.next()
-      addSecurityHeaders(response)
-      return response
-    }
-  }
-
-  // Для остальных путей просто добавляем security headers
-  const response = NextResponse.next()
-  addSecurityHeaders(response)
-  clearRequestTracking(identifier)
-
-  return response
-}
 
 export const config = {
   matcher: [
