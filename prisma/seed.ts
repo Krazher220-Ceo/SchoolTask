@@ -116,7 +116,7 @@ async function main() {
       parliamentMember: {
         create: {
           ministry: 'INFORMATION',
-          position: 'Председатель',
+          position: 'Министр',
           xp: 0,
           level: 1,
           rank: 'Новичок',

@@ -91,7 +91,7 @@ export default async function ParliamentHome() {
             {
               parliamentMember: {
                 ministry: m.enum,
-                position: 'Председатель',
+                position: 'Министр',
               },
             },
           ],
@@ -188,7 +188,7 @@ export default async function ParliamentHome() {
               <h4 className="text-lg font-semibold text-gray-800 mb-2">Структура</h4>
               <p className="text-gray-600 mb-4">
                 Парламент состоит из 4 министерств, каждое из которых отвечает за свое направление 
-                деятельности. Во главе стоит Председатель и Совет министров.
+                деятельности. Во главе стоит Совет министров.
               </p>
             </div>
           </div>

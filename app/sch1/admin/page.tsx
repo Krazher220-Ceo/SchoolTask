@@ -306,6 +306,12 @@ export default async function AdminPage() {
         >
           Управление мероприятиями
         </Link>
+        <Link
+          href="/sch1/admin/stats"
+          className="bg-teal-600 text-white px-6 py-3 rounded-lg hover:bg-teal-700 transition font-semibold text-center"
+        >
+          Управление статистикой
+        </Link>
           </div>
         </section>
       </div>

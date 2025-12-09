@@ -1,7 +1,52 @@
 import Link from 'next/link'
 import { ArrowRight, Users, Calendar, Lightbulb, Trophy } from 'lucide-react'
+import { prisma } from '@/lib/prisma'
 
-export default function Home() {
+export const dynamic = 'force-dynamic'
+
+export default async function Home() {
+  // Получаем статистику
+  const statsData = await prisma.siteStats.findMany({
+    where: {
+      key: {
+        in: ['events_count', 'members_count', 'ideas_count'],
+      },
+    },
+  })
+
+  // Получаем реальное количество завершенных мероприятий админа
+  const admin = await prisma.user.findFirst({
+    where: { role: 'ADMIN' },
+    select: { id: true },
+  })
+
+  let actualEventsCount = 0
+  if (admin) {
+    actualEventsCount = await prisma.event.count({
+      where: {
+        createdById: admin.id,
+        status: 'COMPLETED',
+      },
+    })
+  }
+
+  const statsMap: Record<string, string> = {
+    events_count: '1',
+    members_count: '15+',
+    ideas_count: '10+',
+  }
+
+  statsData.forEach(stat => {
+    statsMap[stat.key] = stat.value
+  })
+
+  const stats = {
+    eventsCount: actualEventsCount > 0 ? actualEventsCount : (parseInt(statsMap.events_count) || 1),
+    membersCount: statsMap.members_count || '15+',
+    ideasCount: statsMap.ideas_count || '10+',
+    isRealEventsCount: actualEventsCount > 0,
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       {/* Навигация */}
@@ -43,7 +88,7 @@ export default function Home() {
             Привет, я <span className="text-primary-600">Кабдуалы Алихан Аязбекұлы</span>
           </h1>
           <p className="text-xl md:text-2xl text-gray-700 mb-4">
-            Председатель Школьного Парламента • 9 класс, литер Д
+            Министр информации Школьного Парламента • 9 класс, литер Д
           </p>
           <p className="text-lg text-gray-600 mb-2">
             IT-специалист с более чем 10+ проектами в портфолио
@@ -75,17 +120,17 @@ export default function Home() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <div className="bg-white rounded-xl shadow-lg p-6 text-center">
             <Calendar className="h-12 w-12 text-primary-600 mx-auto mb-4" />
-            <div className="text-4xl font-bold text-gray-900 mb-2">50+</div>
+            <div className="text-4xl font-bold text-gray-900 mb-2">{stats.eventsCount}{stats.isRealEventsCount ? '' : (typeof stats.eventsCount === 'number' && stats.eventsCount >= 10 ? '+' : '')}</div>
             <div className="text-gray-600">Мероприятий проведено</div>
           </div>
           <div className="bg-white rounded-xl shadow-lg p-6 text-center">
             <Users className="h-12 w-12 text-primary-600 mx-auto mb-4" />
-            <div className="text-4xl font-bold text-gray-900 mb-2">120+</div>
+            <div className="text-4xl font-bold text-gray-900 mb-2">{stats.membersCount}</div>
             <div className="text-gray-600">Участников парламента</div>
           </div>
           <div className="bg-white rounded-xl shadow-lg p-6 text-center">
             <Lightbulb className="h-12 w-12 text-primary-600 mx-auto mb-4" />
-            <div className="text-4xl font-bold text-gray-900 mb-2">200+</div>
+            <div className="text-4xl font-bold text-gray-900 mb-2">{stats.ideasCount}</div>
             <div className="text-gray-600">Реализованных идей</div>
           </div>
           <div className="bg-white rounded-xl shadow-lg p-6 text-center">
@@ -208,7 +253,7 @@ export default function Home() {
             <div>
               <h3 className="text-xl font-bold mb-4">Кабдуалы Алихан Аязбекұлы</h3>
               <p className="text-gray-400">
-                Председатель Школьного Парламента. IT-специалист. Создаю возможности для развития каждого ученика.
+                Министр информации Школьного Парламента. IT-специалист. Создаю возможности для развития каждого ученика.
               </p>
             </div>
             <div>

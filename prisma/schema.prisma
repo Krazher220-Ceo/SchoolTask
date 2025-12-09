@@ -426,3 +426,13 @@ model PublicTaskInstance {
   @@index([userId])
   @@index([status])
 }
+
+// Статистика для главной страницы
+model SiteStats {
+  id                String   @id @default(cuid())
+  key               String   @unique // 'events_count', 'members_count', 'ideas_count'
+  value             String   // Значение (может быть число или текст)
+  description       String?  // Описание
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}

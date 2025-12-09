@@ -25,7 +25,7 @@ export default function AboutPage() {
               <Users className="h-16 w-16 text-white" />
             </div>
             <h1 className="text-4xl font-bold text-gray-900 mb-2">Кабдуалы Алихан Аязбекұлы</h1>
-            <p className="text-xl text-gray-600">Председатель Школьного Парламента • 9 класс, литер Д</p>
+            <p className="text-xl text-gray-600">Министр информации Школьного Парламента • 9 класс, литер Д</p>
           </div>
         </section>
 
@@ -35,7 +35,7 @@ export default function AboutPage() {
           <div className="prose prose-lg max-w-none text-gray-600">
             <p className="mb-4">
               Я активный ученик, который верит в силу образования, лидерства и командной работы. 
-              Как председатель Школьного Парламента, я стремлюсь создать среду, где каждый ученик 
+              Как министр информации Школьного Парламента, я стремлюсь создать среду, где каждый ученик 
               может реализовать свой потенциал и внести вклад в развитие школы.
             </p>
             <p className="mb-4">
@@ -67,7 +67,7 @@ export default function AboutPage() {
               <div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">Достижения</h3>
                 <ul className="list-disc list-inside text-gray-600 space-y-1">
-                  <li>Председатель Школьного Парламента</li>
+                  <li>Министр информации Школьного Парламента</li>
                   <li>Более 10+ IT проектов в портфолио</li>
                   <li>Специализация в области информационных технологий</li>
                   <li>Организатор множества школьных мероприятий</li>

@@ -41,36 +41,26 @@ export default async function MinistryPage({ params }: { params: { slug: string 
   const ministry = ministryData[params.slug]
   const ministryName = ministryNames[ministryEnum]
 
-  // Загружаем министра (может быть министр или председатель для Информации)
+  // Загружаем министра
   const minister = await prisma.user.findFirst({
     where: {
-      OR: [
-        {
-          parliamentMember: {
-            ministry: ministryEnum as any,
-            position: 'Министр',
-          },
-        },
-        {
-          parliamentMember: {
-            ministry: ministryEnum as any,
-            position: 'Председатель',
-          },
-        },
-      ],
+      parliamentMember: {
+        ministry: ministryEnum as any,
+        position: 'Министр',
+      },
     },
     include: {
       parliamentMember: true,
     },
   })
 
-  // Загружаем всех членов министерства (кроме министра и председателя)
+  // Загружаем всех членов министерства (кроме министра)
   const members = await prisma.user.findMany({
     where: {
       parliamentMember: {
         ministry: ministryEnum as any,
         position: { 
-          notIn: ['Министр', 'Председатель'],
+          notIn: ['Министр'],
         },
       },
     },
