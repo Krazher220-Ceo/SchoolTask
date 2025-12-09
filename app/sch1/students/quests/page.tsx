@@ -34,10 +34,10 @@ export default async function StudentQuestsPage() {
     ],
   })
 
-  // Группируем по типам (используем quest.period)
-  const dailyQuests = assignedQuests.filter(aq => aq.quest.period === 'DAILY')
-  const weeklyQuests = assignedQuests.filter(aq => aq.quest.period === 'WEEKLY')
-  const monthlyQuests = assignedQuests.filter(aq => aq.quest.period === 'MONTHLY')
+  // Группируем по типам (используем quest.type)
+  const dailyQuests = assignedQuests.filter(aq => aq.quest.type === 'DAILY')
+  const weeklyQuests = assignedQuests.filter(aq => aq.quest.type === 'WEEKLY')
+  const monthlyQuests = assignedQuests.filter(aq => aq.quest.type === 'MONTHLY')
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">

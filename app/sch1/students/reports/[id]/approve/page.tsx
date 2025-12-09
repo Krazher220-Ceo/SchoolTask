@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import Link from 'next/link'
+import Image from 'next/image'
 import { ArrowLeft, CheckCircle } from 'lucide-react'
 import ApproveReportClient from './ApproveReportClient'
 
@@ -79,9 +80,12 @@ export default async function ApproveStudentReportPage({ params }: { params: { i
               <p className="text-gray-700 mb-4">{report.description}</p>
             )}
             <div className="mb-6">
-              <img 
+              <Image 
                 src={report.photoUrl} 
-                alt="Отчет" 
+                alt="Отчет"
+                width={800}
+                height={600}
+                className="max-w-full rounded-lg" 
                 className="max-w-full rounded-lg border-2 border-gray-200"
               />
             </div>
