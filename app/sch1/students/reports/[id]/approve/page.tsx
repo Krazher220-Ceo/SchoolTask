@@ -85,7 +85,6 @@ export default async function ApproveStudentReportPage({ params }: { params: { i
                 alt="Отчет"
                 width={800}
                 height={600}
-                className="max-w-full rounded-lg" 
                 className="max-w-full rounded-lg border-2 border-gray-200"
               />
             </div>
