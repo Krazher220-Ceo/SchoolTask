@@ -389,16 +389,22 @@ export async function notifyMinistryAboutTask(taskId: string, ministry: string) 
       if (member.telegramId) {
         await sendTelegramMessage(parseInt(member.telegramId), message)
         // Сохраняем уведомление в БД
-        await prisma.telegramNotification.create({
-          data: {
-            userId: member.telegramId, // Временно используем telegramId, нужно исправить
-            type: 'TASK_ASSIGNED',
-            message,
-            taskId,
-            sent: true,
-            sentAt: new Date(),
-          },
+        const memberUser = await prisma.user.findUnique({
+          where: { telegramId: member.telegramId },
+          select: { id: true },
         })
+        if (memberUser) {
+          await prisma.telegramNotification.create({
+            data: {
+              userId: memberUser.id,
+              type: 'TASK_ASSIGNED',
+              message,
+              taskId,
+              sent: true,
+              sentAt: new Date(),
+            },
+          })
+        }
       }
     }
   } catch (error) {

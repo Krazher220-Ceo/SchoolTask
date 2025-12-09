@@ -201,6 +201,17 @@ export async function POST(request: NextRequest) {
       },
     })
 
+    // Отправляем уведомления министерству, если задача для парламента
+    if (data.targetAudience === 'PARLIAMENT_MEMBER' && data.ministry) {
+      try {
+        const { notifyMinistryAboutTask } = await import('@/telegram/bot')
+        await notifyMinistryAboutTask(task.id, data.ministry)
+      } catch (error) {
+        console.error('Ошибка отправки уведомления в Telegram:', error)
+        // Не прерываем создание задачи из-за ошибки уведомления
+      }
+    }
+
     return NextResponse.json(task, { status: 201 })
   } catch (error) {
     if (error instanceof z.ZodError) {
