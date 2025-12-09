@@ -4,7 +4,7 @@ import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import Link from 'next/link'
 import { ArrowLeft, Calendar, Clock, Target } from 'lucide-react'
-import { getAllQuestsForUser } from '@/lib/quests'
+import { ensureQuestsAssigned } from '@/lib/quests'
 
 export default async function StudentQuestsPage() {
   const session = await getServerSession(authOptions)
@@ -17,8 +17,8 @@ export default async function StudentQuestsPage() {
     redirect('/sch1/dashboard')
   }
 
-  // Получаем все квесты для пользователя
-  const quests = await getAllQuestsForUser(session.user.id)
+  // Убеждаемся, что квесты назначены
+  await ensureQuestsAssigned(session.user.id)
 
   // Получаем прогресс выполнения квестов
   const assignedQuests = await prisma.assignedQuest.findMany({
@@ -29,15 +29,15 @@ export default async function StudentQuestsPage() {
       quest: true,
     },
     orderBy: [
-      { period: 'asc' },
-      { periodDate: 'desc' },
+      { periodStart: 'asc' },
+      { assignedAt: 'desc' },
     ],
   })
 
-  // Группируем по типам
-  const dailyQuests = assignedQuests.filter(aq => aq.period === 'daily')
-  const weeklyQuests = assignedQuests.filter(aq => aq.period === 'weekly')
-  const monthlyQuests = assignedQuests.filter(aq => aq.period === 'monthly')
+  // Группируем по типам (используем quest.period)
+  const dailyQuests = assignedQuests.filter(aq => aq.quest.period === 'DAILY')
+  const weeklyQuests = assignedQuests.filter(aq => aq.quest.period === 'WEEKLY')
+  const monthlyQuests = assignedQuests.filter(aq => aq.quest.period === 'MONTHLY')
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
