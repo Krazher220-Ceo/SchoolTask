@@ -4,7 +4,6 @@ import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { getLevelFromXP } from '@/lib/utils'
 import Link from 'next/link'
-import { unstable_cache } from 'next/cache'
 import { 
   Trophy, 
   Target, 
@@ -84,42 +83,33 @@ export default async function DashboardPage() {
     taskWhere.assignedToId = session.user.id
   }
 
-  // Кэшируем задачи пользователя на 30 секунд
-  const getCachedUserTasks = unstable_cache(
-    async (userId: string, taskWhere: any) => {
-      return Promise.all([
-        session.user.role !== 'ADMIN' 
-          ? prisma.publicTaskInstance.findMany({
-              where: { userId },
-              include: { task: true },
-            })
-          : Promise.resolve([]),
-        prisma.task.findMany({
-          where: taskWhere,
-          include: {
-            publicTaskInstances: {
-              where: {
-                userId,
-              },
-              take: 1,
-            },
-          },
-          orderBy: {
-            createdAt: 'desc',
-          },
-          take: 5,
-        }),
-        prisma.task.findMany({
-          where: taskWhere,
-        }),
-      ])
-    },
-    ['user-tasks'],
-    { revalidate: 30 }
-  )
-
   // Загружаем данные параллельно для оптимизации
-  const [publicTaskInstances, myTasks, allMyTasks] = await getCachedUserTasks(session.user.id, taskWhere)
+  const [publicTaskInstances, myTasks, allMyTasks] = await Promise.all([
+    session.user.role !== 'ADMIN' 
+      ? prisma.publicTaskInstance.findMany({
+          where: { userId: session.user.id },
+          include: { task: true },
+        })
+      : Promise.resolve([]),
+    prisma.task.findMany({
+      where: taskWhere,
+      include: {
+        publicTaskInstances: {
+          where: {
+            userId: session.user.id,
+          },
+          take: 1,
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+      take: 5,
+    }),
+    prisma.task.findMany({
+      where: taskWhere,
+    }),
+  ])
 
   // Применяем приоритет для участников парламента
   if (session.user.parliamentMember) {
