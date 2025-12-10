@@ -4,6 +4,7 @@ import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { getLevelFromXP } from '@/lib/utils'
 import Link from 'next/link'
+import Image from 'next/image'
 import { 
   Trophy, 
   Target, 
@@ -173,10 +174,15 @@ export default async function DashboardPage() {
       <header className="glass-nav border-b border-gray-200/50 shadow-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <Link href="/sch1" className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-[#0284c7] flex items-center justify-center text-white font-semibold tracking-tighter shadow-sm shadow-blue-200">
-                СП
-              </div>
+            <Link href="/sch1" className="flex items-center gap-3">
+              <Image
+                src="/parliament-logo.png"
+                alt="Эмблема Школьного Парламента"
+                width={40}
+                height={40}
+                className="object-contain"
+                priority
+              />
               <span className="text-lg font-bold tracking-tight text-gray-900">Личный кабинет</span>
             </Link>
             <div className="flex items-center gap-4">

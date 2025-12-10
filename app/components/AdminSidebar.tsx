@@ -77,10 +77,16 @@ export default function AdminSidebar() {
   return (
     <div className="w-64 bg-white shadow-lg min-h-screen fixed left-0 top-0 overflow-y-auto">
       <div className="p-6 border-b border-gray-200">
-        <div className="flex items-center space-x-2">
-          <Shield className="h-6 w-6 text-primary-600" />
+        <Link href="/sch1/admin" className="flex items-center space-x-3">
+          <Image
+            src="/parliament-logo.png"
+            alt="Эмблема Школьного Парламента"
+            width={32}
+            height={32}
+            className="object-contain"
+          />
           <h2 className="text-xl font-bold text-gray-900">Админ панель</h2>
-        </div>
+        </Link>
       </div>
 
       <nav className="p-4 space-y-1">

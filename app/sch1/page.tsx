@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { 
   Users, 
   Calendar, 
@@ -117,14 +118,19 @@ export default async function ParliamentHome() {
       <header className="glass-nav border-b border-gray-200/50 shadow-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-[#0284c7] flex items-center justify-center text-white font-semibold tracking-tighter shadow-sm shadow-blue-200">
-                СП
-              </div>
+            <Link href="/sch1" className="flex items-center gap-3">
+              <Image
+                src="/parliament-logo.png"
+                alt="Эмблема Школьного Парламента"
+                width={40}
+                height={40}
+                className="object-contain"
+                priority
+              />
               <div>
                 <h1 className="text-lg font-bold tracking-tight text-gray-900">Школьный Парламент</h1>
               </div>
-            </div>
+            </Link>
             <nav className="hidden md:flex items-center space-x-6">
               <Link href="/sch1" className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">
                 Главная
@@ -167,6 +173,32 @@ export default async function ParliamentHome() {
       {/* Главный баннер */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-32">
         <div className="text-center mb-16">
+          <div className="flex justify-center items-center gap-8 mb-8">
+            <Image
+              src="/school-logo.png"
+              alt="Эмблема Мектеп-Лицей №1"
+              width={120}
+              height={120}
+              className="object-contain hidden md:block"
+              priority
+            />
+            <Image
+              src="/parliament-logo.png"
+              alt="Эмблема Школьного Парламента"
+              width={120}
+              height={120}
+              className="object-contain"
+              priority
+            />
+            <Image
+              src="/school-logo.png"
+              alt="Эмблема Мектеп-Лицей №1"
+              width={120}
+              height={120}
+              className="object-contain hidden md:block"
+              priority
+            />
+          </div>
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight text-gray-900 mb-6 max-w-4xl mx-auto leading-tight">
             Добро пожаловать в <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0284c7] to-indigo-600">
@@ -514,12 +546,25 @@ export default async function ParliamentHome() {
       {/* Футер */}
       <footer className="bg-gray-50 border-t border-gray-200 mt-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded bg-[#0284c7] flex items-center justify-center text-white text-xs font-bold">СП</div>
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="flex items-center gap-4">
+              <Image
+                src="/school-logo.png"
+                alt="Эмблема Мектеп-Лицей №1"
+                width={48}
+                height={48}
+                className="object-contain"
+              />
+              <Image
+                src="/parliament-logo.png"
+                alt="Эмблема Школьного Парламента"
+                width={48}
+                height={48}
+                className="object-contain"
+              />
               <span className="font-semibold text-gray-900">Школьный Парламент</span>
             </div>
-            <p className="text-sm text-gray-500">&copy; 2024 Все права защищены</p>
+            <p className="text-sm text-gray-500">&copy; 2024 Мектеп-Лицей №1, г. Костанай. Все права защищены</p>
           </div>
         </div>
       </footer>
