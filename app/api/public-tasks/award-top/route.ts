@@ -82,18 +82,43 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Топ еще не выбран' }, { status: 400 })
     }
 
-    // Процент награды для каждой позиции
-    const rewardPercentages: Record<number, number> = {
-      1: 100, // 1 место - 100%
-      2: 50,  // 2 место - 50%
-      3: 25,  // 3 место - 25%
-      4: 15,  // 4 место - 15%
-      5: 10,  // 5 место - 10%
-      6: 8,   // 6 место - 8%
-      7: 6,   // 7 место - 6%
-      8: 5,   // 8 место - 5%
-      9: 4,   // 9 место - 4%
-      10: 3,  // 10 место - 3%
+    // Процент награды для каждой позиции (зависит от размера топа)
+    const getRewardPercentage = (position: number, topRanking: number): number => {
+      if (topRanking === 3) {
+        // Топ 3: 100%, 50%, 25%
+        const percentages: Record<number, number> = {
+          1: 100,
+          2: 50,
+          3: 25,
+        }
+        return percentages[position] || 0
+      } else if (topRanking === 5) {
+        // Топ 5: 100%, 85%, 55%, 35%, 25%
+        const percentages: Record<number, number> = {
+          1: 100,
+          2: 85,
+          3: 55,
+          4: 35,
+          5: 25,
+        }
+        return percentages[position] || 0
+      } else if (topRanking === 10) {
+        // Топ 10: 100%, 90%, 75%, 60%, 50%, 40%, 30%, 20%, 15%, 10%
+        const percentages: Record<number, number> = {
+          1: 100,
+          2: 90,
+          3: 75,
+          4: 60,
+          5: 50,
+          6: 40,
+          7: 30,
+          8: 20,
+          9: 15,
+          10: 10,
+        }
+        return percentages[position] || 0
+      }
+      return 0
     }
 
     // Начисляем баллы
@@ -101,7 +126,7 @@ export async function POST(request: NextRequest) {
     for (const instance of topInstances) {
       if (!instance.topPosition || !task.epReward) continue
 
-      const percentage = rewardPercentages[instance.topPosition] || 0
+      const percentage = getRewardPercentage(instance.topPosition, task.topRanking!)
       const epAmount = Math.floor((task.epReward * percentage) / 100)
 
       if (epAmount > 0) {
