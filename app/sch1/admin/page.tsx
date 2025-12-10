@@ -134,7 +134,7 @@ export default async function AdminPage() {
     inProgressTasks: statsData[4],
     completedTasks: statsData[5],
     pendingReports: statsData[6],
-    totalXP: statsData[7]._sum.xp || 0,
+    totalXP: (statsData[7] as any)._sum?.xp || 0,
   }
 
   return (
@@ -185,7 +185,7 @@ export default async function AdminPage() {
           </div>
           <div className="bg-white rounded-xl shadow-lg p-6">
             <TrendingUp className="h-8 w-8 text-orange-600 mb-3" />
-            <div className="text-2xl font-bold text-gray-900">{stats.totalXP._sum.xp || 0}</div>
+            <div className="text-2xl font-bold text-gray-900">{stats.totalXP}</div>
             <div className="text-sm text-gray-600">Всего XP</div>
           </div>
         </div>
