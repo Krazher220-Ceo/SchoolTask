@@ -83,29 +83,33 @@ export default async function DashboardPage() {
     taskWhere.assignedToId = session.user.id
   }
 
-  // Получаем общественные задачи, которые пользователь взял (для статистики)
-  const publicTaskInstances = session.user.role !== 'ADMIN' 
-    ? await prisma.publicTaskInstance.findMany({
-        where: { userId: session.user.id },
-        include: { task: true },
-      })
-    : []
-
-  const myTasks = await prisma.task.findMany({
-    where: taskWhere,
-    include: {
-      publicTaskInstances: {
-        where: {
-          userId: session.user.id,
+  // Загружаем данные параллельно для оптимизации
+  const [publicTaskInstances, myTasks, allMyTasks] = await Promise.all([
+    session.user.role !== 'ADMIN' 
+      ? prisma.publicTaskInstance.findMany({
+          where: { userId: session.user.id },
+          include: { task: true },
+        })
+      : Promise.resolve([]),
+    prisma.task.findMany({
+      where: taskWhere,
+      include: {
+        publicTaskInstances: {
+          where: {
+            userId: session.user.id,
+          },
+          take: 1,
         },
-        take: 1,
       },
-    },
-    orderBy: {
-      createdAt: 'desc',
-    },
-    take: 5,
-  })
+      orderBy: {
+        createdAt: 'desc',
+      },
+      take: 5,
+    }),
+    prisma.task.findMany({
+      where: taskWhere,
+    }),
+  ])
 
   // Применяем приоритет для участников парламента
   if (session.user.parliamentMember) {
@@ -129,10 +133,6 @@ export default async function DashboardPage() {
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     })
   }
-
-  const allMyTasks = await prisma.task.findMany({
-    where: taskWhere,
-  })
 
   // Для статистики учитываем также общественные задачи, которые пользователь взял
   // Убираем дубликаты (если задача уже есть в allMyTasks, не добавляем её из publicTaskInstances)

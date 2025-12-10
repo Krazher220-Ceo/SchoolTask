@@ -28,68 +28,80 @@ export default async function AdminPage() {
     redirect('/sch1/dashboard')
   }
 
-  // Загружаем статистику
-  const stats = {
-    totalUsers: await prisma.user.count(),
-    totalMembers: await prisma.parliamentMember.count({ where: { isActive: true } }),
-    totalTasks: await prisma.task.count(),
-    pendingTasks: await prisma.task.count({ where: { status: 'NEW' } }),
-    inProgressTasks: await prisma.task.count({ where: { status: 'IN_PROGRESS' } }),
-    completedTasks: await prisma.task.count({ where: { status: 'COMPLETED' } }),
-    pendingReports: await prisma.taskReport.count({ where: { status: 'PENDING' } }),
-    totalXP: await prisma.parliamentMember.aggregate({
-      _sum: { xp: true },
+  // Загружаем всю статистику параллельно для оптимизации
+  const [
+    statsData,
+    recentTasks,
+    pendingReports,
+    topMembers,
+  ] = await Promise.all([
+    Promise.all([
+      prisma.user.count(),
+      prisma.parliamentMember.count({ where: { isActive: true } }),
+      prisma.task.count(),
+      prisma.task.count({ where: { status: 'NEW' } }),
+      prisma.task.count({ where: { status: 'IN_PROGRESS' } }),
+      prisma.task.count({ where: { status: 'COMPLETED' } }),
+      prisma.taskReport.count({ where: { status: 'PENDING' } }),
+      prisma.parliamentMember.aggregate({
+        _sum: { xp: true },
+      }),
+    ]),
+    prisma.task.findMany({
+      take: 10,
+      orderBy: { createdAt: 'desc' },
+      include: {
+        assignedTo: {
+          select: { name: true },
+        },
+        createdBy: {
+          select: { name: true },
+        },
+      },
     }),
+    prisma.taskReport.findMany({
+      where: { status: 'PENDING' },
+      take: 10,
+      orderBy: { createdAt: 'desc' },
+      include: {
+        task: {
+          select: {
+            title: true,
+            xpReward: true,
+          },
+        },
+        user: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    }),
+    prisma.parliamentMember.findMany({
+      where: { isActive: true },
+      include: {
+        user: {
+          select: {
+            name: true,
+            email: true,
+          },
+        },
+      },
+      orderBy: { xp: 'desc' },
+      take: 10,
+    }),
+  ])
+
+  const stats = {
+    totalUsers: statsData[0],
+    totalMembers: statsData[1],
+    totalTasks: statsData[2],
+    pendingTasks: statsData[3],
+    inProgressTasks: statsData[4],
+    completedTasks: statsData[5],
+    pendingReports: statsData[6],
+    totalXP: statsData[7]._sum.xp || 0,
   }
-
-  // Последние задачи
-  const recentTasks = await prisma.task.findMany({
-    take: 10,
-    orderBy: { createdAt: 'desc' },
-    include: {
-      assignedTo: {
-        select: { name: true },
-      },
-      createdBy: {
-        select: { name: true },
-      },
-    },
-  })
-
-  // Последние отчеты на проверке
-  const pendingReports = await prisma.taskReport.findMany({
-    where: { status: 'PENDING' },
-    take: 10,
-    orderBy: { createdAt: 'desc' },
-    include: {
-      task: {
-        select: {
-          title: true,
-          xpReward: true,
-        },
-      },
-      user: {
-        select: {
-          name: true,
-        },
-      },
-    },
-  })
-
-  // Топ участники
-  const topMembers = await prisma.parliamentMember.findMany({
-    where: { isActive: true },
-    include: {
-      user: {
-        select: {
-          name: true,
-          email: true,
-        },
-      },
-    },
-    orderBy: { xp: 'desc' },
-    take: 10,
-  })
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white flex">

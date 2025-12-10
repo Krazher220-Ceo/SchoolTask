@@ -23,7 +23,8 @@ export default function PublicTaskPage() {
   })
 
   useEffect(() => {
-    fetch(`/api/tasks/${taskId}`)
+    // Загружаем задачу и инстанс в одном запросе
+    fetch(`/api/public-tasks/${taskId}/full`)
       .then(res => {
         if (!res.ok) {
           throw new Error('Задача не найдена')
@@ -31,27 +32,18 @@ export default function PublicTaskPage() {
         return res.json()
       })
       .then(data => {
-        if (data.id) {
-          setTask(data)
-          // Загружаем инстанс задачи пользователя отдельно
-          fetch(`/api/public-tasks/${taskId}/instance`)
-            .then(res => res.ok ? res.json() : null)
-            .then(instanceData => {
-              // Проверяем, что instanceData существует и не null
-              if (instanceData && instanceData.id) {
-                setInstance(instanceData)
-                if (instanceData.videoUrl || instanceData.workLink) {
-                  setFormData({
-                    videoUrl: instanceData.videoUrl || '',
-                    workLink: instanceData.workLink || '',
-                    description: instanceData.description || '',
-                  })
-                }
-              }
-            })
-            .catch(() => {
-              // Игнорируем ошибки при загрузке инстанса (это нормально, если пользователь еще не взял задачу)
-            })
+        if (data.task?.id) {
+          setTask(data.task)
+          if (data.instance?.id) {
+            setInstance(data.instance)
+            if (data.instance.videoUrl || data.instance.workLink || data.instance.description) {
+              setFormData({
+                videoUrl: data.instance.videoUrl || '',
+                workLink: data.instance.workLink || '',
+                description: data.instance.description || '',
+              })
+            }
+          }
         }
         setLoading(false)
       })
