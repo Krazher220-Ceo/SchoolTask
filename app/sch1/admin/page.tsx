@@ -125,62 +125,6 @@ export default async function AdminPage() {
     getCachedPendingReports(),
     getCachedTopMembers(),
   ])
-    Promise.all([
-      prisma.user.count(),
-      prisma.parliamentMember.count({ where: { isActive: true } }),
-      prisma.task.count(),
-      prisma.task.count({ where: { status: 'NEW' } }),
-      prisma.task.count({ where: { status: 'IN_PROGRESS' } }),
-      prisma.task.count({ where: { status: 'COMPLETED' } }),
-      prisma.taskReport.count({ where: { status: 'PENDING' } }),
-      prisma.parliamentMember.aggregate({
-        _sum: { xp: true },
-      }),
-    ]),
-    prisma.task.findMany({
-      take: 10,
-      orderBy: { createdAt: 'desc' },
-      include: {
-        assignedTo: {
-          select: { name: true },
-        },
-        createdBy: {
-          select: { name: true },
-        },
-      },
-    }),
-    prisma.taskReport.findMany({
-      where: { status: 'PENDING' },
-      take: 10,
-      orderBy: { createdAt: 'desc' },
-      include: {
-        task: {
-          select: {
-            title: true,
-            xpReward: true,
-          },
-        },
-        user: {
-          select: {
-            name: true,
-          },
-        },
-      },
-    }),
-    prisma.parliamentMember.findMany({
-      where: { isActive: true },
-      include: {
-        user: {
-          select: {
-            name: true,
-            email: true,
-          },
-        },
-      },
-      orderBy: { xp: 'desc' },
-      take: 10,
-    }),
-  ])
 
   const stats = {
     totalUsers: statsData[0],
