@@ -182,26 +182,98 @@ export default async function ParliamentHome() {
         {/* О парламенте */}
         <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 mb-12">
           <h3 className="text-2xl font-semibold text-gray-900 mb-6 tracking-tight">О парламенте</h3>
-          <div className="grid md:grid-cols-2 gap-8">
+          <div className="space-y-8">
             <div>
-              <h4 className="text-lg font-semibold text-gray-800 mb-2">Наша миссия</h4>
-              <p className="text-gray-600 mb-4">
-                Создавать условия для развития лидерских качеств, творческих способностей 
-                и социальной активности каждого ученика через участие в управлении школьной жизнью.
+              <h4 className="text-lg font-semibold text-gray-800 mb-3">Что такое Школьный Парламент?</h4>
+              <p className="text-gray-600 mb-4 leading-relaxed">
+                Школьный парламент является выборным органом самоуправления. Основная функция парламента 
+                на первой стадии развития - исполнительская, в дальнейшем, по мере развития - организаторская и управленческая.
               </p>
-              <h4 className="text-lg font-semibold text-gray-800 mb-2">Наши ценности</h4>
-              <ul className="list-disc list-inside text-gray-600 space-y-1">
-                <li>Активность и инициативность</li>
-                <li>Командная работа</li>
-                <li>Креативность и инновации</li>
-                <li>Ответственность и надежность</li>
-              </ul>
+              <p className="text-gray-600 leading-relaxed">
+                Деятельность направлена на развитие модели гражданского общества в рамках школьного коллектива, 
+                воспитание правовой культуры учащихся, формирование у них активной гражданской позиции, 
+                развитие ученического самоуправления.
+              </p>
             </div>
+
             <div>
-              <h4 className="text-lg font-semibold text-gray-800 mb-2">Структура</h4>
-              <p className="text-gray-600 mb-4">
-                Парламент состоит из 4 министерств, каждое из которых отвечает за свое направление 
-                деятельности. Во главе стоит Совет министров.
+              <h4 className="text-lg font-semibold text-gray-800 mb-3">Структура парламента</h4>
+              <div className="grid md:grid-cols-2 gap-6">
+                <div>
+                  <h5 className="font-semibold text-gray-900 mb-2">Руководство</h5>
+                  <ul className="text-gray-600 space-y-1 text-sm">
+                    <li>• Президент парламента</li>
+                    <li>• Совет министров</li>
+                  </ul>
+                </div>
+                <div>
+                  <h5 className="font-semibold text-gray-900 mb-2">Министерства</h5>
+                  <ul className="text-gray-600 space-y-1 text-sm">
+                    <li>• Права и порядка</li>
+                    <li>• Информации</li>
+                    <li>• Спорта и здорового образа жизни</li>
+                    <li>• Самопознания и счастья</li>
+                    <li>• Заботы (волонтерство)</li>
+                    <li>• Культуры и искусства</li>
+                    <li>• Дебатного движения</li>
+                    <li>• Экологии и труда</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h4 className="text-lg font-semibold text-gray-800 mb-3">Основные функции министерств</h4>
+              <div className="grid md:grid-cols-2 gap-6 text-sm">
+                <div>
+                  <h5 className="font-medium text-gray-900 mb-2">Права и порядка</h5>
+                  <p className="text-gray-600">
+                    Дежурство по школе, охрана порядка на мероприятиях, контроль за соблюдением правил 
+                    безопасного поведения и внутреннего распорядка.
+                  </p>
+                </div>
+                <div>
+                  <h5 className="font-medium text-gray-900 mb-2">Информации</h5>
+                  <p className="text-gray-600">
+                    Сбор и распространение информации о достижениях школы, формирование положительного 
+                    имиджа, фото и видеосъемка мероприятий.
+                  </p>
+                </div>
+                <div>
+                  <h5 className="font-medium text-gray-900 mb-2">Спорта и здоровья</h5>
+                  <p className="text-gray-600">
+                    Организация спортивных соревнований, участие в городских и республиканских мероприятиях, 
+                    проведение спортивных праздников и веселых переменок.
+                  </p>
+                </div>
+                <div>
+                  <h5 className="font-medium text-gray-900 mb-2">Заботы</h5>
+                  <p className="text-gray-600">
+                    Развитие волонтерской деятельности, проведение благотворительных акций, организация 
+                    помощи нуждающимся, поздравления с днями рождения.
+                  </p>
+                </div>
+                <div>
+                  <h5 className="font-medium text-gray-900 mb-2">Культуры и искусства</h5>
+                  <p className="text-gray-600">
+                    Подготовка и проведение интеллектуальных игр, выставок, конкурсов, праздников, 
+                    фестивалей, театральных постановок.
+                  </p>
+                </div>
+                <div>
+                  <h5 className="font-medium text-gray-900 mb-2">Экологии и труда</h5>
+                  <p className="text-gray-600">
+                    Участие в экологических акциях, организация субботников, формирование экологической 
+                    культуры учащихся, привлечение внимания к проблемам климата.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-blue-50 rounded-lg p-4 border border-blue-100">
+              <p className="text-sm text-gray-700">
+                Парламент взаимодействует с педагогическим советом, администрацией школы и 
+                Попечительским советом в соответствии с уставом школы.
               </p>
             </div>
           </div>
