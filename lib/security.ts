@@ -197,14 +197,14 @@ export function createRateLimitResponse(
  * Добавить security headers к ответу
  */
 export function addSecurityHeaders(response: NextResponse): NextResponse {
-  // Content Security Policy
+  // Content Security Policy - с разрешениями для Google Forms
   response.headers.set(
     'Content-Security-Policy',
-    "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none';"
+    "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.google.com https://*.googleapis.com https://code.iconify.design; style-src 'self' 'unsafe-inline' https://*.google.com https://fonts.googleapis.com; img-src 'self' data: https: blob:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://*.google.com https://*.googleapis.com https://*.gstatic.com; frame-src 'self' https://docs.google.com https://*.google.com https://*.googleusercontent.com https://*.gstatic.com; frame-ancestors 'none';"
   )
 
-  // X-Frame-Options
-  response.headers.set('X-Frame-Options', 'DENY')
+  // X-Frame-Options - SAMEORIGIN для разрешения встраивания Google Forms
+  response.headers.set('X-Frame-Options', 'SAMEORIGIN')
 
   // X-Content-Type-Options
   response.headers.set('X-Content-Type-Options', 'nosniff')

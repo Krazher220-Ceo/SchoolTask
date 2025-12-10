@@ -40,7 +40,7 @@ const nextConfig = {
           },
           {
             key: 'Content-Security-Policy',
-            value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.google.com https://*.googleapis.com https://code.iconify.design; style-src 'self' 'unsafe-inline' https://*.google.com https://fonts.googleapis.com; img-src 'self' data: https: blob:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://*.google.com https://*.googleapis.com; frame-src 'self' https://docs.google.com https://*.google.com https://*.googleusercontent.com; frame-ancestors 'none';"
+            value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.google.com https://*.googleapis.com https://code.iconify.design; style-src 'self' 'unsafe-inline' https://*.google.com https://fonts.googleapis.com; img-src 'self' data: https: blob:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://*.google.com https://*.googleapis.com https://*.gstatic.com; frame-src 'self' https://docs.google.com https://*.google.com https://*.googleusercontent.com https://*.gstatic.com; frame-ancestors 'none';"
           },
         ],
       },
