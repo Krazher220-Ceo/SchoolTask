@@ -173,15 +173,7 @@ export default async function ParliamentHome() {
       {/* Главный баннер */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-32">
         <div className="text-center mb-16">
-          <div className="flex justify-center items-center gap-8 mb-8">
-            <Image
-              src="/school-logo.png"
-              alt="Эмблема Мектеп-Лицей №1"
-              width={120}
-              height={120}
-              className="object-contain hidden md:block"
-              priority
-            />
+          <div className="flex justify-center items-center gap-6 md:gap-12 mb-8">
             <Image
               src="/parliament-logo.png"
               alt="Эмблема Школьного Парламента"
@@ -193,9 +185,17 @@ export default async function ParliamentHome() {
             <Image
               src="/school-logo.png"
               alt="Эмблема Мектеп-Лицей №1"
+              width={140}
+              height={140}
+              className="object-contain"
+              priority
+            />
+            <Image
+              src="/adal-azamat-logo.png"
+              alt="Эмблема Адал Азамат"
               width={120}
               height={120}
-              className="object-contain hidden md:block"
+              className="object-contain"
               priority
             />
           </div>
