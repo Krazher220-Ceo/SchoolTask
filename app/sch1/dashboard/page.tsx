@@ -168,26 +168,28 @@ export default async function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 selection:bg-[#0ea5e9] selection:text-white">
       {/* Шапка */}
-      <header className="bg-white shadow-sm sticky top-0 z-50">
+      <header className="glass-nav border-b border-gray-200/50 shadow-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <Link href="/sch1" className="flex items-center space-x-2">
-              <Trophy className="h-8 w-8 text-primary-600" />
-              <span className="text-xl font-bold text-gray-900">Личный кабинет</span>
+            <Link href="/sch1" className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-[#0284c7] flex items-center justify-center text-white font-semibold tracking-tighter shadow-sm shadow-blue-200">
+                СП
+              </div>
+              <span className="text-lg font-bold tracking-tight text-gray-900">Личный кабинет</span>
             </Link>
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center gap-4">
               <Link
                 href="/sch1"
-                className="text-gray-600 hover:text-primary-600 transition text-sm"
+                className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
               >
                 Главная
               </Link>
-              <span className="text-gray-700">{user.name}</span>
+              <span className="text-sm text-gray-600 hidden sm:block">{user.name}</span>
               <Link
                 href="/api/auth/signout"
-                className="text-gray-600 hover:text-primary-600 transition"
+                className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
               >
                 Выйти
               </Link>
@@ -196,37 +198,47 @@ export default async function DashboardPage() {
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Приветствие */}
         <section className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Добро пожаловать, {user.name}!
-          </h1>
-          <p className="text-gray-600">
-            {member 
-              ? `Министерство ${member.ministry === 'LAW_AND_ORDER' ? 'Права и порядка' : 
-                         member.ministry === 'INFORMATION' ? 'Информации' :
-                         member.ministry === 'SPORT' ? 'Спорта' : 'Заботы'} • ${member.position || 'Участник'}`
-              : 'Ученик школы'}
-          </p>
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+            <div>
+              <h1 className="text-4xl md:text-5xl font-semibold tracking-tight text-gray-900 mb-2">
+                Привет, {user.name.split(' ')[0]}! 👋
+              </h1>
+              <p className="text-gray-600 text-lg">
+                {member 
+                  ? `Министерство ${member.ministry === 'LAW_AND_ORDER' ? 'Права и порядка' : 
+                             member.ministry === 'INFORMATION' ? 'Информации' :
+                             member.ministry === 'SPORT' ? 'Спорта' : 'Заботы'} • ${member.position || 'Участник'}`
+                  : 'Ученик школы'}
+              </p>
+            </div>
+            <div className="flex items-center gap-2 text-sm text-gray-500 bg-white/60 backdrop-blur px-3 py-1.5 rounded-full border border-gray-200 shadow-sm">
+              <Calendar className="h-4 w-4" />
+              <span>Сегодня</span>
+            </div>
+          </div>
         </section>
 
         {/* Прогресс уровня */}
         {member && (
-          <section className="bg-white rounded-xl shadow-lg p-6 mb-8">
+          <section className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mb-8">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-1">Уровень {level}</h2>
-                <p className="text-gray-600">{rank}</p>
+                <div className="flex items-center gap-2 mb-1">
+                  <h2 className="text-2xl font-semibold text-gray-900">Уровень {level}</h2>
+                  <span className="text-xs font-semibold text-[#0284c7] bg-blue-50 px-2 py-0.5 rounded-full">{rank}</span>
+                </div>
               </div>
               <div className="text-right">
-                <div className="text-3xl font-bold text-primary-600">{member.xp} XP</div>
-                <div className="text-sm text-gray-500">До следующего уровня: {nextLevelXP - member.xp} XP</div>
+                <div className="text-3xl font-semibold text-[#0284c7] tracking-tight">{member.xp} XP</div>
+                <div className="text-xs text-gray-500">До следующего уровня: {nextLevelXP - member.xp} XP</div>
               </div>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-4">
+            <div className="w-full bg-gray-200 rounded-full h-2">
               <div 
-                className="bg-gradient-to-r from-primary-500 to-indigo-500 h-4 rounded-full transition-all"
+                className="bg-gradient-to-r from-[#0ea5e9] to-indigo-500 h-2 rounded-full transition-all"
                 style={{ width: `${Math.min(progress, 100)}%` }}
               ></div>
             </div>
@@ -234,40 +246,68 @@ export default async function DashboardPage() {
         )}
 
         {/* Статистика */}
-        <section className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-xl shadow-lg p-6 text-center">
-            <Target className="h-8 w-8 text-primary-600 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-gray-900">{stats.total}</div>
-            <div className="text-sm text-gray-600">Всего задач</div>
+        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 relative overflow-hidden group hover:shadow-xl transition-all duration-300">
+            <div className="absolute -right-4 -top-4 w-24 h-24 bg-blue-50 rounded-full group-hover:scale-110 transition-transform"></div>
+            <div className="relative z-10 flex justify-between items-start">
+              <div>
+                <p className="text-sm font-medium text-gray-500 mb-1">Всего задач</p>
+                <h3 className="text-3xl font-semibold text-gray-900 tracking-tight">{stats.total}</h3>
+              </div>
+              <div className="p-3 bg-blue-100 text-[#0284c7] rounded-lg">
+                <Target className="h-6 w-6" />
+              </div>
+            </div>
           </div>
-          <div className="bg-white rounded-xl shadow-lg p-6 text-center">
-            <CheckCircle className="h-8 w-8 text-green-600 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-gray-900">{stats.completed}</div>
-            <div className="text-sm text-gray-600">Выполнено</div>
+          <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 relative overflow-hidden group hover:shadow-xl transition-all duration-300">
+            <div className="absolute -right-4 -top-4 w-24 h-24 bg-green-50 rounded-full group-hover:scale-110 transition-transform"></div>
+            <div className="relative z-10 flex justify-between items-start">
+              <div>
+                <p className="text-sm font-medium text-gray-500 mb-1">Выполнено</p>
+                <h3 className="text-3xl font-semibold text-gray-900 tracking-tight">{stats.completed}</h3>
+              </div>
+              <div className="p-3 bg-green-100 text-[#10b981] rounded-lg">
+                <CheckCircle className="h-6 w-6" />
+              </div>
+            </div>
           </div>
-          <div className="bg-white rounded-xl shadow-lg p-6 text-center">
-            <Clock className="h-8 w-8 text-blue-600 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-gray-900">{stats.inProgress}</div>
-            <div className="text-sm text-gray-600">В работе</div>
+          <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 relative overflow-hidden group hover:shadow-xl transition-all duration-300">
+            <div className="absolute -right-4 -top-4 w-24 h-24 bg-yellow-50 rounded-full group-hover:scale-110 transition-transform"></div>
+            <div className="relative z-10 flex justify-between items-start">
+              <div>
+                <p className="text-sm font-medium text-gray-500 mb-1">В работе</p>
+                <h3 className="text-3xl font-semibold text-gray-900 tracking-tight">{stats.inProgress}</h3>
+              </div>
+              <div className="p-3 bg-yellow-100 text-yellow-600 rounded-lg">
+                <Clock className="h-6 w-6" />
+              </div>
+            </div>
           </div>
-          <div className="bg-white rounded-xl shadow-lg p-6 text-center">
-            <Calendar className="h-8 w-8 text-orange-600 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-gray-900">{stats.pending}</div>
-            <div className="text-sm text-gray-600">Ожидают</div>
+          <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 relative overflow-hidden group hover:shadow-xl transition-all duration-300">
+            <div className="absolute -right-4 -top-4 w-24 h-24 bg-orange-50 rounded-full group-hover:scale-110 transition-transform"></div>
+            <div className="relative z-10 flex justify-between items-start">
+              <div>
+                <p className="text-sm font-medium text-gray-500 mb-1">Ожидают</p>
+                <h3 className="text-3xl font-semibold text-gray-900 tracking-tight">{stats.pending}</h3>
+              </div>
+              <div className="p-3 bg-orange-100 text-orange-600 rounded-lg">
+                <Calendar className="h-6 w-6" />
+              </div>
+            </div>
           </div>
         </section>
 
         <div className="grid md:grid-cols-2 gap-8">
           {/* Мои задачи */}
-          <section className="bg-white rounded-xl shadow-lg p-6">
+          <section className="bg-white rounded-xl shadow-lg border border-gray-100 p-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold text-gray-900">Мои задачи</h2>
+              <h2 className="text-xl font-semibold text-gray-900 tracking-tight">Мои задачи</h2>
               <Link 
                 href={session.user.role === 'STUDENT' ? '/sch1/students' : '/sch1/tasks'} 
-                className="text-primary-600 hover:text-primary-700 text-sm font-semibold"
+                className="text-sm font-medium text-[#0284c7] hover:text-[#0369a1] flex items-center gap-1"
               >
                 Все задачи
-                <ArrowRight className="inline h-4 w-4 ml-1" />
+                <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
             <div className="space-y-3">
@@ -289,40 +329,42 @@ export default async function DashboardPage() {
                     <Link
                       key={task.id}
                       href={taskLink}
-                      className="block border-2 border-gray-200 rounded-lg p-4 hover:border-primary-300 transition"
+                      className="group block border border-gray-200 rounded-lg p-4 hover:bg-blue-50/30 hover:border-[#0284c7]/30 transition-colors"
                     >
                       <div className="flex justify-between items-start mb-2">
-                        <div className="flex-1">
-                          <div className="font-semibold text-gray-900">{task.title}</div>
+                        <div className="flex-1 pr-4">
+                          <h4 className="text-sm font-semibold text-gray-900 group-hover:text-[#0284c7] transition-colors">{task.title}</h4>
                           {task.taskType === 'PUBLIC' && (
-                            <span className="inline-block mt-1 px-2 py-0.5 bg-blue-100 text-blue-700 text-xs font-semibold rounded">
+                            <span className="inline-block mt-1 px-2 py-0.5 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">
                               Общественная
                             </span>
                           )}
                         </div>
-                        <span className={`px-2 py-1 rounded text-xs font-semibold ${
-                          taskStatus === 'COMPLETED' ? 'bg-green-100 text-green-700' :
-                          taskStatus === 'IN_PROGRESS' || taskStatus === 'IN_REVIEW' ? 'bg-blue-100 text-blue-700' :
-                          taskStatus === 'REJECTED' ? 'bg-red-100 text-red-700' :
-                          'bg-gray-100 text-gray-700'
+                        <span className={`px-2.5 py-1 rounded-full text-xs font-medium inline-flex items-center gap-1 ${
+                          taskStatus === 'COMPLETED' ? 'bg-[#dcfce7] text-[#10b981] border border-[#86efac]/30' :
+                          taskStatus === 'IN_PROGRESS' || taskStatus === 'IN_REVIEW' ? 'bg-[#fef3c7] text-[#f59e0b] border border-[#fcd34d]/30' :
+                          taskStatus === 'REJECTED' ? 'bg-[#fee2e2] text-[#ef4444] border border-[#fca5a5]/30' :
+                          'bg-gray-100 text-gray-600 border border-gray-200'
                         }`}>
+                          {taskStatus === 'IN_PROGRESS' && <span className="w-1.5 h-1.5 rounded-full bg-[#f59e0b] animate-pulse"></span>}
+                          {taskStatus === 'COMPLETED' && <CheckCircle className="h-3 w-3" />}
                           {taskStatus === 'COMPLETED' ? 'Выполнено' :
                            taskStatus === 'IN_PROGRESS' ? 'В работе' :
                            taskStatus === 'IN_REVIEW' ? 'На проверке' :
                            taskStatus === 'REJECTED' ? 'Отклонено' : 'Новая'}
                         </span>
                       </div>
-                      <div className="text-sm text-gray-600 mb-2">
+                      <p className="text-xs text-gray-500 mt-1 mb-2 line-clamp-2">
                         {task.description.substring(0, 80)}{task.description.length > 80 ? '...' : ''}
-                      </div>
+                      </p>
                       <div className="flex items-center justify-between text-xs text-gray-500">
                         <span>
                           {task.targetAudience === 'STUDENT' || task.targetAudience === 'PUBLIC' 
-                            ? `Награда: ${task.epReward || 0} EP`
-                            : `Награда: ${task.xpReward || 0} XP`}
+                            ? `${task.epReward || 0} EP`
+                            : `${task.xpReward || 0} XP`}
                         </span>
                         {task.deadline && (
-                          <span>До: {new Date(task.deadline).toLocaleDateString('ru-RU')}</span>
+                          <span>{new Date(task.deadline).toLocaleDateString('ru-RU')}</span>
                         )}
                       </div>
                     </Link>
@@ -338,25 +380,25 @@ export default async function DashboardPage() {
           </section>
 
           {/* История XP */}
-          <section className="bg-white rounded-xl shadow-lg p-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Последние начисления XP</h2>
+          <section className="bg-white rounded-xl shadow-lg border border-gray-100 p-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4 tracking-tight">Последние начисления XP</h2>
             <div className="space-y-3">
               {user.xpHistory.length > 0 ? (
                 user.xpHistory.map((xp) => (
-                  <div key={xp.id} className="flex items-center justify-between border-b border-gray-200 pb-3">
-                    <div>
-                      <div className="font-semibold text-gray-900 text-sm">{xp.reason}</div>
-                      <div className="text-xs text-gray-500">
+                  <div key={xp.id} className="flex items-center justify-between border-b border-gray-100 pb-3 last:border-0">
+                    <div className="flex-1">
+                      <div className="font-medium text-gray-900 text-sm">{xp.reason}</div>
+                      <div className="text-xs text-gray-500 mt-0.5">
                         {new Date(xp.createdAt).toLocaleDateString('ru-RU')}
                       </div>
                     </div>
-                    <div className="text-primary-600 font-bold">+{xp.amount} XP</div>
+                    <div className="text-[#0284c7] font-semibold text-sm">+{xp.amount} XP</div>
                   </div>
                 ))
               ) : (
                 <div className="text-center text-gray-500 py-8">
                   <TrendingUp className="h-12 w-12 mx-auto mb-3 text-gray-400" />
-                  <p>История пуста</p>
+                  <p className="text-sm">История пуста</p>
                 </div>
               )}
             </div>
@@ -364,26 +406,26 @@ export default async function DashboardPage() {
         </div>
 
         {/* Быстрые действия */}
-        <section className="mt-8 bg-white rounded-xl shadow-lg p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Быстрые действия</h2>
+        <section className="mt-8 bg-white rounded-xl shadow-lg border border-gray-100 p-6">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4 tracking-tight">Быстрые действия</h2>
           <div className="grid md:grid-cols-3 gap-4">
             {session.user.role === 'ADMIN' && (
               <>
                 <Link
                   href="/sch1/admin"
-                  className="bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition font-semibold text-center"
+                  className="bg-[#0284c7] hover:bg-[#0369a1] text-white px-6 py-2.5 rounded-lg transition font-medium text-center text-sm shadow-sm shadow-blue-200"
                 >
                   Админ-панель
                 </Link>
                 <Link
                   href="/sch1/tasks/new"
-                  className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition font-semibold text-center"
+                  className="bg-green-600 hover:bg-green-700 text-white px-6 py-2.5 rounded-lg transition font-medium text-center text-sm shadow-sm"
                 >
                   Создать задачу
                 </Link>
                 <Link
                   href="/sch1/ratings"
-                  className="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition font-semibold text-center"
+                  className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2.5 rounded-lg transition font-medium text-center text-sm shadow-sm"
                 >
                   Рейтинги
                 </Link>
@@ -391,9 +433,9 @@ export default async function DashboardPage() {
             )}
             <Link
               href="/sch1/telegram-link"
-              className="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition font-semibold text-center flex items-center justify-center"
+              className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2.5 rounded-lg transition font-medium text-center flex items-center justify-center text-sm shadow-sm"
             >
-              <MessageCircle className="h-5 w-5 mr-2" />
+              <MessageCircle className="h-4 w-4 mr-2" />
               Привязать Telegram
             </Link>
           </div>
