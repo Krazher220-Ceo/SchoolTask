@@ -135,12 +135,30 @@ export default async function ParliamentHome() {
                 Рейтинги
               </Link>
             </nav>
-            <Link
-              href="/sch1/login"
-              className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition"
-            >
-              Войти
-            </Link>
+            {session ? (
+              <div className="flex items-center space-x-4">
+                <span className="text-gray-700">{session.user.name}</span>
+                <Link
+                  href="/sch1/dashboard"
+                  className="text-gray-700 hover:text-primary-600 transition"
+                >
+                  Личный кабинет
+                </Link>
+                <Link
+                  href="/api/auth/signout"
+                  className="text-gray-600 hover:text-primary-600 transition"
+                >
+                  Выйти
+                </Link>
+              </div>
+            ) : (
+              <Link
+                href="/sch1/login"
+                className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition"
+              >
+                Войти
+              </Link>
+            )}
           </div>
         </div>
       </header>
