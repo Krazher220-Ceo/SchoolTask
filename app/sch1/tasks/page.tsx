@@ -30,7 +30,12 @@ export default async function TasksPage({
     where.assignedToId = searchParams.assignedToId
   }
 
-  // Разделяем задачи: министерства видят только свои задачи, ученики - только свои
+  // Если ученик пытается зайти на /sch1/tasks, перенаправляем на /sch1/students
+  if (session.user.role === 'STUDENT' && !session.user.parliamentMember) {
+    redirect('/sch1/students')
+  }
+
+  // Разделяем задачи: министерства видят только свои задачи
   if (session.user.role !== 'ADMIN') {
     if (session.user.parliamentMember) {
       // Участники парламента видят только задачи министерств (не видят задачи для учеников)
@@ -45,19 +50,6 @@ export default async function TasksPage({
           OR: [
             { ministry: null },
             { ministry: session.user.parliamentMember.ministry },
-          ],
-        },
-      ]
-    } else {
-      // Ученики видят только задачи для учеников (не видят задачи министерств)
-      where.OR = [
-        { assignedToId: session.user.id },
-        { targetAudience: 'STUDENT' },
-        {
-          targetAudience: 'PUBLIC',
-          OR: [
-            { ministry: null },
-            { ministry: 'STUDENTS' },
           ],
         },
       ]

@@ -256,7 +256,10 @@ export default async function DashboardPage() {
           <section className="bg-white rounded-xl shadow-lg p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold text-gray-900">Мои задачи</h2>
-              <Link href="/sch1/tasks" className="text-primary-600 hover:text-primary-700 text-sm font-semibold">
+              <Link 
+                href={session.user.role === 'STUDENT' ? '/sch1/students' : '/sch1/tasks'} 
+                className="text-primary-600 hover:text-primary-700 text-sm font-semibold"
+              >
                 Все задачи
                 <ArrowRight className="inline h-4 w-4 ml-1" />
               </Link>

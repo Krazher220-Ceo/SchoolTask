@@ -80,10 +80,18 @@ export default function TasksClient({ tasks, users, initialFilters }: any) {
       {/* Список задач */}
       <div className="space-y-4">
         {tasks.length > 0 ? (
-          tasks.map((task: any) => (
+          tasks.map((task: any) => {
+            // Определяем правильную ссылку в зависимости от типа задачи
+            const taskLink = task.taskType === 'PUBLIC' 
+              ? `/sch1/public-tasks/${task.id}`
+              : task.targetAudience === 'STUDENT' || task.targetAudience === 'PUBLIC'
+              ? `/sch1/public-tasks/${task.id}`
+              : `/sch1/tasks/${task.id}`
+            
+            return (
             <Link
               key={task.id}
-              href={`/sch1/tasks/${task.id}`}
+              href={taskLink}
               className="block bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition"
             >
               <div className="flex justify-between items-start mb-4">
@@ -127,7 +135,9 @@ export default function TasksClient({ tasks, users, initialFilters }: any) {
                     )}
                     <div className="flex items-center">
                       <Award className="h-4 w-4 mr-1" />
-                      {task.xpReward} XP
+                      {task.targetAudience === 'STUDENT' || task.targetAudience === 'PUBLIC'
+                        ? `${task.epReward || 0} EP`
+                        : `${task.xpReward || 0} XP`}
                     </div>
                     {task.deadline && (
                       <div className="flex items-center">
@@ -140,11 +150,22 @@ export default function TasksClient({ tasks, users, initialFilters }: any) {
                         Отчет на проверке
                       </span>
                     )}
+                    {task.taskType === 'PUBLIC' && (
+                      <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs">
+                        Общественная
+                      </span>
+                    )}
+                    {task.publicTaskInstances && task.publicTaskInstances.length > 0 && (
+                      <span className="bg-green-100 text-green-700 px-2 py-1 rounded text-xs">
+                        Взята
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>
             </Link>
-          ))
+            )
+          })
         ) : (
           <div className="bg-white rounded-xl shadow-lg p-12 text-center">
             <p className="text-gray-500 text-lg">Задач не найдено</p>
