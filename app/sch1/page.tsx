@@ -12,6 +12,8 @@ import {
   Heart
 } from 'lucide-react'
 import { prisma } from '@/lib/prisma'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth'
 import { ministryNames, ministrySlugs } from '@/lib/utils'
 
 const ministries = [
