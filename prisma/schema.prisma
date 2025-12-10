@@ -91,6 +91,9 @@ model Task {
   epReward       Int? // Для учеников (EP)
   targetAudience String    @default("PARLIAMENT_MEMBER") // PARLIAMENT_MEMBER, STUDENT, PUBLIC
   taskType       String    @default("PRIVATE") // PRIVATE (назначена конкретному), PUBLIC (общественная - каждый берет свою копию)
+  topRanking     Int? // Для общественных задач: 3, 5, 10 - количество мест в топе (null = без рейтинга)
+  selectedTopInstances String? // JSON массив ID выбранных инстансов в топе (до дедлайна)
+  topAwarded     Boolean   @default(false) // Флаг, что топ награжден (после дедлайна)
   tags           String? // JSON массив тегов
   attachments    String? // JSON массив ссылок
   createdAt      DateTime  @default(now())
@@ -456,6 +459,8 @@ model PublicTaskInstance {
   description  String? // Описание выполненной работы
   feedback     String?
   reviewedById String?
+  topPosition  Int? // Позиция в топе (1, 2, 3, ...) - устанавливается админом до дедлайна
+  topAwarded    Boolean @default(false) // Флаг, что награда за топ начислена
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 

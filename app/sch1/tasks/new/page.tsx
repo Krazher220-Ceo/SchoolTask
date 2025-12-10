@@ -24,6 +24,7 @@ export default function NewTaskPage() {
     epReward: 0,
     targetAudience: 'PARLIAMENT_MEMBER',
     taskType: 'PRIVATE',
+    topRanking: null as number | null,
     tags: '',
   })
 
@@ -62,7 +63,7 @@ export default function NewTaskPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-          body: JSON.stringify({
+        body: JSON.stringify({
           title: formData.title.trim(),
           description: formData.description.trim(),
           ministry: (formData.targetAudience === 'PARLIAMENT_MEMBER' || formData.targetAudience === 'PUBLIC') 
@@ -75,6 +76,7 @@ export default function NewTaskPage() {
           epReward: (formData.targetAudience === 'STUDENT' || formData.targetAudience === 'PUBLIC') ? (formData.epReward || 0) : null,
           targetAudience: formData.targetAudience,
           taskType: formData.taskType || (formData.targetAudience === 'PUBLIC' ? 'PUBLIC' : 'PRIVATE'),
+          topRanking: formData.targetAudience === 'PUBLIC' ? (formData.topRanking || null) : null,
           tags: formData.tags ? formData.tags.split(',').map(t => t.trim()).filter(t => t) : [],
         }),
       })
@@ -276,22 +278,44 @@ export default function NewTaskPage() {
                 />
               </div>
             )}
-            {(formData.targetAudience === 'STUDENT' || formData.targetAudience === 'PUBLIC') && (
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Награда (EP) *
-                </label>
-                <input
-                  type="number"
-                  min="1"
-                  required
-                  value={formData.epReward}
-                  onChange={(e) => setFormData({ ...formData, epReward: parseInt(e.target.value) })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                />
-                <p className="text-xs text-gray-500 mt-1">EP начисляются ученикам за выполнение задачи</p>
-              </div>
-            )}
+                {(formData.targetAudience === 'STUDENT' || formData.targetAudience === 'PUBLIC') && (
+                  <>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Награда (EP) *
+                      </label>
+                      <input
+                        type="number"
+                        min="1"
+                        required
+                        value={formData.epReward}
+                        onChange={(e) => setFormData({ ...formData, epReward: parseInt(e.target.value) })}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      />
+                      <p className="text-xs text-gray-500 mt-1">EP начисляются ученикам за выполнение задачи</p>
+                    </div>
+                    {formData.targetAudience === 'PUBLIC' && (
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Топ рейтинг (опционально)
+                        </label>
+                        <select
+                          value={formData.topRanking || ''}
+                          onChange={(e) => setFormData({ ...formData, topRanking: e.target.value ? parseInt(e.target.value) : null })}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                        >
+                          <option value="">Без рейтинга</option>
+                          <option value="3">Топ 3</option>
+                          <option value="5">Топ 5</option>
+                          <option value="10">Топ 10</option>
+                        </select>
+                        <p className="text-xs text-gray-500 mt-1">
+                          Если выбран топ, до дедлайна можно выбрать лучшие работы. После дедлайна автоматически начислятся баллы: 1 место - 100%, 2 место - 50%, 3 место - 25% и т.д.
+                        </p>
+                      </div>
+                    )}
+                  </>
+                )}
           </div>
 
           <div>

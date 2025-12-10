@@ -14,6 +14,23 @@ export default async function PublicTasksAdminPage() {
     redirect('/sch1/dashboard')
   }
 
+  // Получаем задачи с топ рейтингом
+  const tasksWithTop = await prisma.task.findMany({
+    where: {
+      taskType: 'PUBLIC',
+      topRanking: { not: null },
+    },
+    select: {
+      id: true,
+      title: true,
+      topRanking: true,
+      deadline: true,
+      epReward: true,
+      selectedTopInstances: true,
+      topAwarded: true,
+    },
+  })
+
   const instances = await prisma.publicTaskInstance.findMany({
     where: {
       status: 'IN_REVIEW',
@@ -25,6 +42,10 @@ export default async function PublicTasksAdminPage() {
           title: true,
           description: true,
           epReward: true,
+          topRanking: true,
+          deadline: true,
+          selectedTopInstances: true,
+          topAwarded: true,
         },
       },
       user: {
@@ -63,6 +84,43 @@ export default async function PublicTasksAdminPage() {
         </header>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Задачи с топ рейтингом */}
+          {tasksWithTop.length > 0 && (
+            <div className="mb-8">
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">Задачи с топ рейтингом</h2>
+              <div className="space-y-4">
+                {tasksWithTop.map((task) => (
+                  <div key={task.id} className="bg-white rounded-xl shadow-lg p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-xl font-bold text-gray-900">{task.title}</h3>
+                      <span className="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-sm font-semibold">
+                        Топ {task.topRanking}
+                      </span>
+                    </div>
+                    <div className="text-sm text-gray-600 mb-4">
+                      <p>EP награда: {task.epReward}</p>
+                      {task.deadline && (
+                        <p>Дедлайн: {new Date(task.deadline).toLocaleDateString('ru-RU')}</p>
+                      )}
+                      {task.deadline && new Date(task.deadline) < new Date() && !task.topAwarded && (
+                        <p className="text-red-600 font-semibold">Дедлайн прошел - можно начислить баллы</p>
+                      )}
+                      {task.topAwarded && (
+                        <p className="text-green-600 font-semibold">Баллы уже начислены</p>
+                      )}
+                    </div>
+                    <Link
+                      href={`/sch1/admin/public-tasks/${task.id}/select-top`}
+                      className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition inline-block"
+                    >
+                      Управление топом
+                    </Link>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           <PublicTasksClient instances={instances} />
         </div>
       </div>

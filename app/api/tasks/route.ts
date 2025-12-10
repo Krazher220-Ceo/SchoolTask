@@ -17,6 +17,7 @@ const taskSchema = z.object({
   epReward: z.number().int().min(0).optional().nullable(),
   targetAudience: z.enum(['PARLIAMENT_MEMBER', 'STUDENT', 'PUBLIC']).default('PARLIAMENT_MEMBER'),
   taskType: z.enum(['PRIVATE', 'PUBLIC']).default('PRIVATE'),
+  topRanking: z.union([z.literal(3), z.literal(5), z.literal(10)]).optional().nullable(), // Для общественных задач: топ 3, 5 или 10
   tags: z.array(z.string()).optional().nullable(),
 })
 
@@ -208,9 +209,10 @@ export async function POST(request: NextRequest) {
         deadline: data.deadline ? new Date(data.deadline) : null,
         xpReward: data.xpReward || 0,
         epReward: data.epReward || null,
-        targetAudience: data.targetAudience,
-        taskType: data.taskType || 'PRIVATE',
-        tags: data.tags ? JSON.stringify(data.tags) : null,
+            targetAudience: data.targetAudience,
+            taskType: data.taskType || 'PRIVATE',
+            topRanking: data.topRanking || null, // Топ рейтинг для общественных задач
+            tags: data.tags ? JSON.stringify(data.tags) : null,
       },
       include: {
         assignedTo: {

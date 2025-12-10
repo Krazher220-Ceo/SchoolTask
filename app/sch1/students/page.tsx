@@ -187,7 +187,7 @@ export default async function StudentsPage() {
         {session.user.role === 'ADMIN' ? (
           <div className="bg-white rounded-xl shadow-lg p-6">
             <h2 className="text-2xl font-bold text-gray-900 mb-4">Отчеты учеников на проверке</h2>
-            {reports.filter(r => r.status === 'PENDING').length > 0 ? (
+              {reports.filter(r => r.status === 'PENDING').length > 0 ? (
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead className="bg-gray-50">
@@ -205,8 +205,8 @@ export default async function StudentsPage() {
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
                     {reports
-                      .filter(r => r.status === 'PENDING')
-                      .map((report) => (
+                  .filter(r => r.status === 'PENDING')
+                  .map((report) => (
                         <tr key={report.id} className="hover:bg-gray-50">
                           <td className="px-4 py-3 whitespace-nowrap">
                             <div className="font-medium text-gray-900">{report.user.name}</div>
@@ -252,33 +252,33 @@ export default async function StudentsPage() {
                           </td>
                           <td className="px-4 py-3 whitespace-nowrap">
                             <div className="flex gap-2">
-                              <Link
-                                href={`/sch1/students/reports/${report.id}/approve`}
+                        <Link
+                          href={`/sch1/students/reports/${report.id}/approve`}
                                 className="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700 transition"
-                              >
+                        >
                                 Одобрить
-                              </Link>
-                              <Link
-                                href={`/sch1/students/reports/${report.id}/reject`}
+                        </Link>
+                        <Link
+                          href={`/sch1/students/reports/${report.id}/reject`}
                                 className="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700 transition"
-                              >
-                                Отклонить
-                              </Link>
-                            </div>
+                        >
+                          Отклонить
+                        </Link>
+                      </div>
                           </td>
                         </tr>
                       ))}
                   </tbody>
                 </table>
-              </div>
-            ) : (
-              <p className="text-gray-500 text-center py-8">Нет отчетов на проверке</p>
-            )}
+                    </div>
+              ) : (
+                <p className="text-gray-500 text-center py-8">Нет отчетов на проверке</p>
+              )}
           </div>
         ) : (
           <div className="bg-white rounded-xl shadow-lg p-6">
             <h2 className="text-2xl font-bold text-gray-900 mb-4">Мои отчеты</h2>
-            {reports.length > 0 ? (
+              {reports.length > 0 ? (
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead className="bg-gray-50">
@@ -321,13 +321,13 @@ export default async function StudentsPage() {
                         </td>
                         <td className="px-4 py-3 whitespace-nowrap">
                           <span className={`px-2 py-1 rounded text-xs font-semibold ${
-                            report.status === 'APPROVED' ? 'bg-green-100 text-green-700' :
-                            report.status === 'REJECTED' ? 'bg-red-100 text-red-700' :
-                            'bg-yellow-100 text-yellow-700'
-                          }`}>
-                            {report.status === 'APPROVED' ? 'Одобрено' :
-                             report.status === 'REJECTED' ? 'Отклонено' : 'На проверке'}
-                          </span>
+                          report.status === 'APPROVED' ? 'bg-green-100 text-green-700' :
+                          report.status === 'REJECTED' ? 'bg-red-100 text-red-700' :
+                          'bg-yellow-100 text-yellow-700'
+                        }`}>
+                          {report.status === 'APPROVED' ? 'Одобрено' :
+                           report.status === 'REJECTED' ? 'Отклонено' : 'На проверке'}
+                        </span>
                         </td>
                         <td className="px-4 py-3 whitespace-nowrap">
                           {report.photoUrl ? (
@@ -350,7 +350,7 @@ export default async function StudentsPage() {
                           {report.feedback ? (
                             <div className="bg-gray-50 border-l-4 border-gray-400 p-2 rounded">
                               <p className="text-xs">{report.feedback}</p>
-                            </div>
+                      </div>
                           ) : (
                             <span className="text-gray-400">—</span>
                           )}
@@ -359,19 +359,19 @@ export default async function StudentsPage() {
                     ))}
                   </tbody>
                 </table>
-              </div>
-            ) : (
-              <div className="text-center py-8">
-                <p className="text-gray-500 mb-4">У вас пока нет отчетов</p>
-                <Link
-                  href="/sch1/students/report"
-                  className="bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition inline-flex items-center"
-                >
+                  </div>
+              ) : (
+                <div className="text-center py-8">
+                  <p className="text-gray-500 mb-4">У вас пока нет отчетов</p>
+                  <Link
+                    href="/sch1/students/report"
+                    className="bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition inline-flex items-center"
+                  >
                   <Image className="h-5 w-5 mr-2" aria-label="Иконка изображения" />
-                  Загрузить фото балла
-                </Link>
-              </div>
-            )}
+                    Загрузить фото балла
+                  </Link>
+                </div>
+              )}
           </div>
         )}
       </div>

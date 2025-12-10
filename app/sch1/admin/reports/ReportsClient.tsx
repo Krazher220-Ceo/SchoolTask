@@ -268,9 +268,9 @@ export default function ReportsClient({
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.fullClass || user.class || '—'}</td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-2">
-                        {userPasswords[user.id] ? (
+                      {userPasswords[user.id] ? (
                           <>
-                            <span className="text-sm font-mono text-green-600">{userPasswords[user.id]}</span>
+                        <span className="text-sm font-mono text-green-600">{userPasswords[user.id]}</span>
                             <button
                               onClick={() => regeneratePassword(user.id)}
                               disabled={loading}
@@ -280,15 +280,15 @@ export default function ReportsClient({
                               Обновить
                             </button>
                           </>
-                        ) : (
-                          <button
+                      ) : (
+                        <button
                             onClick={() => getPassword(user.id)}
-                            disabled={loading}
-                            className="text-blue-600 hover:text-blue-900 text-sm"
-                          >
-                            Получить пароль
-                          </button>
-                        )}
+                          disabled={loading}
+                          className="text-blue-600 hover:text-blue-900 text-sm"
+                        >
+                          Получить пароль
+                        </button>
+                      )}
                       </div>
                     </td>
                   </tr>
