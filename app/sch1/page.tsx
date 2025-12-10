@@ -46,20 +46,9 @@ const ministries = [
 ]
 
 export default async function ParliamentHome() {
-  // Проверяем авторизацию и редиректим в dashboard если залогинен
-  // Но делаем это только на сервере, не создавая редирект-петлю
-  try {
-    const { getServerSession } = await import('next-auth')
-    const { authOptions } = await import('@/lib/auth')
-    const session = await getServerSession(authOptions)
-    
-    if (session) {
-      const { redirect } = await import('next/navigation')
-      redirect('/sch1/dashboard')
-    }
-  } catch (error) {
-    // Игнорируем ошибки авторизации на публичной странице
-  }
+  // Разрешаем авторизованным пользователям видеть главную страницу
+  // (убрали автоматический редирект, чтобы кнопка "Главная" работала)
+  const session = await getServerSession(authOptions)
 
   // Загружаем статистику
   const totalMembers = await prisma.parliamentMember.count({

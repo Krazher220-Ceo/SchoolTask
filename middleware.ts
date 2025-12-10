@@ -109,14 +109,6 @@ export default withAuth(
 
     const token = req.nextauth.token
 
-    // Если пользователь авторизован и пытается зайти на публичную страницу sch1, редиректим в dashboard
-    if (token && path === '/sch1') {
-      const response = NextResponse.redirect(new URL('/sch1/dashboard', req.url))
-      addSecurityHeaders(response)
-      clearRequestTracking(identifier)
-      return response
-    }
-
     // Если пользователь авторизован и пытается зайти на login, редиректим в dashboard
     if (token && path === '/sch1/login') {
       const response = NextResponse.redirect(new URL('/sch1/dashboard', req.url))
@@ -124,6 +116,9 @@ export default withAuth(
       clearRequestTracking(identifier)
       return response
     }
+
+    // Разрешаем авторизованным пользователям видеть главную страницу /sch1
+    // (убрали автоматический редирект, чтобы кнопка "Главная" работала)
 
     // Применяем security headers
     const response = NextResponse.next()
