@@ -146,7 +146,15 @@ export default function CreateStudentReportPage() {
                 className="cursor-pointer flex flex-col items-center"
               >
                 {preview ? (
-                  <Image src={preview} alt="Preview" width={800} height={400} className="max-w-full max-h-64 rounded-lg mb-4 object-contain" />
+                  <Image 
+                    src={preview} 
+                    alt="Preview" 
+                    width={800} 
+                    height={400} 
+                    className="max-w-full max-h-64 rounded-lg mb-4 object-contain"
+                    loading="lazy"
+                    quality={85}
+                  />
                 ) : (
                   <>
                     <Upload className="h-12 w-12 text-gray-400 mb-4" />

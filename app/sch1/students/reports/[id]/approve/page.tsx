@@ -86,6 +86,8 @@ export default async function ApproveStudentReportPage({ params }: { params: { i
                 width={800}
                 height={600}
                 className="max-w-full rounded-lg border-2 border-gray-200"
+                loading="lazy"
+                quality={85}
               />
             </div>
             <div className="bg-green-50 border-l-4 border-green-400 p-4 rounded mb-4">

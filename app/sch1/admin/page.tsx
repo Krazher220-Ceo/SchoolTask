@@ -4,6 +4,7 @@ import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import Link from 'next/link'
 import AdminSidebar from '@/app/components/AdminSidebar'
+import { unstable_cache } from 'next/cache'
 import { 
   Shield, 
   Users, 
@@ -28,6 +29,90 @@ export default async function AdminPage() {
     redirect('/sch1/dashboard')
   }
 
+  // Кэшируем статистику на 1 минуту
+  const getCachedStats = unstable_cache(
+    async () => {
+      return Promise.all([
+        prisma.user.count(),
+        prisma.parliamentMember.count({ where: { isActive: true } }),
+        prisma.task.count(),
+        prisma.task.count({ where: { status: 'NEW' } }),
+        prisma.task.count({ where: { status: 'IN_PROGRESS' } }),
+        prisma.task.count({ where: { status: 'COMPLETED' } }),
+        prisma.taskReport.count({ where: { status: 'PENDING' } }),
+        prisma.parliamentMember.aggregate({
+          _sum: { xp: true },
+        }),
+      ])
+    },
+    ['admin-stats'],
+    { revalidate: 60 }
+  )
+
+  const getCachedRecentTasks = unstable_cache(
+    async () => {
+      return prisma.task.findMany({
+        take: 10,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          assignedTo: {
+            select: { name: true },
+          },
+          createdBy: {
+            select: { name: true },
+          },
+        },
+      })
+    },
+    ['admin-recent-tasks'],
+    { revalidate: 30 }
+  )
+
+  const getCachedPendingReports = unstable_cache(
+    async () => {
+      return prisma.taskReport.findMany({
+        where: { status: 'PENDING' },
+        take: 10,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          task: {
+            select: {
+              title: true,
+              xpReward: true,
+            },
+          },
+          user: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      })
+    },
+    ['admin-pending-reports'],
+    { revalidate: 30 }
+  )
+
+  const getCachedTopMembers = unstable_cache(
+    async () => {
+      return prisma.parliamentMember.findMany({
+        where: { isActive: true },
+        include: {
+          user: {
+            select: {
+              name: true,
+              email: true,
+            },
+          },
+        },
+        orderBy: { xp: 'desc' },
+        take: 10,
+      })
+    },
+    ['admin-top-members'],
+    { revalidate: 60 }
+  )
+
   // Загружаем всю статистику параллельно для оптимизации
   const [
     statsData,
@@ -35,6 +120,11 @@ export default async function AdminPage() {
     pendingReports,
     topMembers,
   ] = await Promise.all([
+    getCachedStats(),
+    getCachedRecentTasks(),
+    getCachedPendingReports(),
+    getCachedTopMembers(),
+  ])
     Promise.all([
       prisma.user.count(),
       prisma.parliamentMember.count({ where: { isActive: true } }),

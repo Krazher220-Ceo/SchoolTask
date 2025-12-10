@@ -3,6 +3,10 @@ const nextConfig = {
   reactStrictMode: true,
   images: {
     domains: ['localhost'],
+    formats: ['image/avif', 'image/webp'],
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    minimumCacheTTL: 60,
   },
   // Security headers
   async headers() {
@@ -72,6 +76,15 @@ const nextConfig = {
   // Оптимизация импортов для уменьшения размера бандла
   experimental: {
     optimizePackageImports: ['lucide-react'],
+  },
+  // Компрессия
+  compress: true,
+  // Оптимизация production сборки
+  swcMinify: true,
+  // Оптимизация кэширования
+  onDemandEntries: {
+    maxInactiveAge: 25 * 1000,
+    pagesBufferLength: 2,
   },
 }
 
