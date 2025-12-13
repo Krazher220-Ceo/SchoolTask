@@ -64,6 +64,15 @@ export async function PATCH(
     const body = await request.json()
     const data = updateEventSchema.parse(body)
 
+    // Проверяем, что мероприятие существует
+    const existingEvent = await prisma.event.findUnique({
+      where: { id: params.id },
+    })
+
+    if (!existingEvent) {
+      return NextResponse.json({ error: 'Мероприятие не найдено' }, { status: 404 })
+    }
+
     const updateData: any = {}
     if (data.title) updateData.title = data.title
     if (data.description) updateData.description = data.description
@@ -80,9 +89,13 @@ export async function PATCH(
     })
 
     return NextResponse.json(event)
-  } catch (error) {
+  } catch (error: any) {
     if (error instanceof z.ZodError) {
       return NextResponse.json({ error: 'Неверные данные', details: error.errors }, { status: 400 })
+    }
+    // Обработка ошибок Prisma
+    if (error.code === 'P2025') {
+      return NextResponse.json({ error: 'Мероприятие не найдено' }, { status: 404 })
     }
     console.error('Ошибка при обновлении мероприятия:', error)
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 })
@@ -105,14 +118,29 @@ export async function DELETE(
       return NextResponse.json({ error: 'Недостаточно прав' }, { status: 403 })
     }
 
+    // Проверяем, что мероприятие существует
+    const existingEvent = await prisma.event.findUnique({
+      where: { id: params.id },
+      select: { id: true, title: true },
+    })
+
+    if (!existingEvent) {
+      return NextResponse.json({ error: 'Мероприятие не найдено' }, { status: 404 })
+    }
+
     await prisma.event.delete({
       where: { id: params.id },
     })
 
     return NextResponse.json({ message: 'Мероприятие удалено' })
-  } catch (error) {
+  } catch (error: any) {
+    // Обработка ошибок Prisma
+    if (error.code === 'P2025') {
+      return NextResponse.json({ error: 'Мероприятие не найдено' }, { status: 404 })
+    }
     console.error('Ошибка при удалении мероприятия:', error)
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 })
   }
 }
+
 

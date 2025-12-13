@@ -45,7 +45,7 @@ export async function POST(
       return NextResponse.json({ error: 'Пользователь не является участником парламента' }, { status: 400 })
     }
 
-    // Обновляем XP
+    // Обновляем XP (проверка на существование уже выполнена выше)
     const updatedMember = await prisma.parliamentMember.update({
       where: { userId: params.id },
       data: {
@@ -85,9 +85,16 @@ export async function POST(
       level,
       rank,
     })
-  } catch (error) {
+  } catch (error: any) {
     if (error instanceof z.ZodError) {
       return NextResponse.json({ error: 'Неверные данные', details: error.errors }, { status: 400 })
+    }
+    // Обработка ошибок Prisma
+    if (error.code === 'P2025') {
+      return NextResponse.json({ error: 'Участник парламента не найден' }, { status: 404 })
+    }
+    if (error.message && error.message.includes('не найден')) {
+      return NextResponse.json({ error: error.message }, { status: 404 })
     }
     console.error('Ошибка при выдаче XP:', error)
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 })

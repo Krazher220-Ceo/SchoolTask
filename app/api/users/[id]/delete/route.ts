@@ -26,13 +26,27 @@ export async function DELETE(
       return NextResponse.json({ error: 'Нельзя удалить самого себя' }, { status: 400 })
     }
 
+    // Проверяем, что пользователь существует
+    const existingUser = await prisma.user.findUnique({
+      where: { id: params.id },
+      select: { id: true, name: true, email: true },
+    })
+
+    if (!existingUser) {
+      return NextResponse.json({ error: 'Пользователь не найден' }, { status: 404 })
+    }
+
     // Удаляем пользователя (каскадное удаление обработается Prisma)
     await prisma.user.delete({
       where: { id: params.id },
     })
 
     return NextResponse.json({ message: 'Пользователь удален' })
-  } catch (error) {
+  } catch (error: any) {
+    // Обработка ошибок Prisma
+    if (error.code === 'P2025') {
+      return NextResponse.json({ error: 'Пользователь не найден' }, { status: 404 })
+    }
     console.error('Ошибка при удалении пользователя:', error)
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 })
   }

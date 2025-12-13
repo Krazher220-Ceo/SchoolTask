@@ -16,6 +16,10 @@ import { prisma } from '@/lib/prisma'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { ministryNames, ministrySlugs } from '@/lib/utils'
+import Spotlight from '@/app/components/Spotlight'
+import MinistryWar from '@/app/components/MinistryWar'
+import AIMentor from '@/app/components/AIMentor'
+import SocialFeed from '@/app/components/SocialFeed'
 
 const ministries = [
   { 
@@ -140,6 +144,9 @@ export default async function ParliamentHome() {
               </Link>
               <Link href="/sch1/ratings" className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">
                 Рейтинги
+              </Link>
+              <Link href="/sch1/shop" className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">
+                Магазин
               </Link>
             </nav>
             {session ? (
@@ -430,6 +437,18 @@ export default async function ParliamentHome() {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Spotlight и Битва Министерств */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-12">
+          <Spotlight />
+          <MinistryWar />
+        </div>
+
+        {/* AI-Ментор и Лента Событий */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-12">
+          <AIMentor />
+          <SocialFeed />
         </div>
 
         {/* Недавние мероприятия */}

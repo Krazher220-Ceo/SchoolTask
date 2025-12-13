@@ -1,0 +1,50 @@
+{
+  "name": "SCH1 - Школьный Парламент",
+  "short_name": "SCH1",
+  "description": "Платформа для цифровизации школьного самоуправления",
+  "start_url": "/sch1",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#6366f1",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["education", "productivity"],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Дашборд",
+      "short_name": "Дашборд",
+      "description": "Открыть личный кабинет",
+      "url": "/sch1/dashboard",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Магазин",
+      "short_name": "Магазин",
+      "description": "Открыть магазин эффектов",
+      "url": "/sch1/shop",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Рейтинги",
+      "short_name": "Рейтинги",
+      "description": "Посмотреть рейтинги",
+      "url": "/sch1/ratings",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}
+

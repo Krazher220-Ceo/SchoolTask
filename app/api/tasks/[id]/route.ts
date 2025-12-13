@@ -109,6 +109,16 @@ export async function PATCH(
     const body = await request.json()
     const data = updateTaskSchema.parse(body)
 
+    // Проверяем, что задача все еще существует (может быть удалена между проверкой и обновлением)
+    const existingTask = await prisma.task.findUnique({
+      where: { id: params.id },
+      select: { id: true },
+    })
+
+    if (!existingTask) {
+      return NextResponse.json({ error: 'Задача не найдена' }, { status: 404 })
+    }
+
     const updateData: any = {}
     if (data.title) updateData.title = data.title
     if (data.description) updateData.description = data.description
@@ -154,9 +164,13 @@ export async function PATCH(
     }
 
     return NextResponse.json(updatedTask)
-  } catch (error) {
+  } catch (error: any) {
     if (error instanceof z.ZodError) {
       return NextResponse.json({ error: 'Неверные данные', details: error.errors }, { status: 400 })
+    }
+    // Обработка ошибок Prisma
+    if (error.code === 'P2025') {
+      return NextResponse.json({ error: 'Задача не найдена' }, { status: 404 })
     }
     console.error('Ошибка при обновлении задачи:', error)
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 })

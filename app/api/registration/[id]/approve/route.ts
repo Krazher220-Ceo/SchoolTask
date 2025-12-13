@@ -100,7 +100,7 @@ export async function POST(
       })
     }
 
-    // Обновляем заявку
+    // Обновляем заявку (проверка на существование уже выполнена выше)
     await prisma.registrationRequest.update({
       where: { id: params.id },
       data: {
@@ -120,9 +120,13 @@ export async function POST(
       },
       password: password, // Возвращаем пароль для отправки пользователю
     })
-  } catch (error) {
+  } catch (error: any) {
     if (error instanceof z.ZodError) {
       return NextResponse.json({ error: 'Неверные данные', details: error.errors }, { status: 400 })
+    }
+    // Обработка ошибок Prisma
+    if (error.code === 'P2025') {
+      return NextResponse.json({ error: 'Заявка не найдена' }, { status: 404 })
     }
     console.error('Ошибка при одобрении заявки:', error)
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 })
@@ -143,6 +147,20 @@ export async function DELETE(
     const body = await request.json()
     const { feedback } = body
 
+    // Проверяем, что заявка существует
+    const existingRequest = await prisma.registrationRequest.findUnique({
+      where: { id: params.id },
+      select: { id: true, status: true },
+    })
+
+    if (!existingRequest) {
+      return NextResponse.json({ error: 'Заявка не найдена' }, { status: 404 })
+    }
+
+    if (existingRequest.status !== 'PENDING') {
+      return NextResponse.json({ error: 'Заявка уже обработана' }, { status: 400 })
+    }
+
     await prisma.registrationRequest.update({
       where: { id: params.id },
       data: {
@@ -154,7 +172,14 @@ export async function DELETE(
     })
 
     return NextResponse.json({ success: true })
-  } catch (error) {
+  } catch (error: any) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json({ error: 'Неверные данные', details: error.errors }, { status: 400 })
+    }
+    // Обработка ошибок Prisma
+    if (error.code === 'P2025') {
+      return NextResponse.json({ error: 'Заявка не найдена' }, { status: 404 })
+    }
     console.error('Ошибка при отклонении заявки:', error)
     return NextResponse.json({ error: 'Ошибка сервера' }, { status: 500 })
   }
