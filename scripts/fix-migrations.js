@@ -22,6 +22,15 @@ try {
   execSync('npx prisma migrate deploy', { stdio: 'inherit' })
   console.log('✅ Все миграции применены успешно!')
 } catch (error) {
+  const errorOutput = error.stdout?.toString() || error.stderr?.toString() || ''
+  
+  // Если база данных недоступна, просто пропускаем миграции
+  if (errorOutput.includes('P1001') || errorOutput.includes("Can't reach database")) {
+    console.log('⚠️  База данных недоступна во время сборки. Пропускаем миграции.')
+    console.log('ℹ️  Миграции будут применены при первом запросе к API или можно применить вручную.')
+    // Выходим без ошибки, чтобы сборка продолжилась
+    process.exit(0)
+  }
   console.log('⚠️  Обнаружены провалившиеся миграции, разрешаем...')
   
   // Получаем список провалившихся миграций из вывода ошибки
@@ -80,10 +89,31 @@ try {
     execSync('npx prisma migrate deploy', { stdio: 'inherit' })
     console.log('✅ Миграции применены!')
   } catch (retryError) {
-    // Если все еще ошибка, используем db push как fallback
-    console.log('⚠️  Миграции не применились, используем db push как fallback...')
-    execSync('npx prisma db push --accept-data-loss --skip-generate', { stdio: 'inherit' })
-    console.log('✅ База данных синхронизирована через db push!')
+    const retryErrorOutput = retryError.stdout?.toString() || retryError.stderr?.toString() || ''
+    
+    // Проверяем, является ли ошибка проблемой подключения к БД
+    if (retryErrorOutput.includes('P1001') || retryErrorOutput.includes("Can't reach database")) {
+      console.log('⚠️  База данных недоступна во время сборки. Пропускаем миграции.')
+      console.log('ℹ️  Миграции будут применены при первом запросе к API или можно применить вручную.')
+      // Продолжаем сборку без ошибки
+    } else {
+      // Если это не проблема подключения, используем db push как fallback
+      console.log('⚠️  Миграции не применились, используем db push как fallback...')
+      try {
+        execSync('npx prisma db push --accept-data-loss --skip-generate', { stdio: 'inherit' })
+        console.log('✅ База данных синхронизирована через db push!')
+      } catch (dbPushError) {
+        const dbPushErrorOutput = dbPushError.stdout?.toString() || dbPushError.stderr?.toString() || ''
+        if (dbPushErrorOutput.includes('P1001') || dbPushErrorOutput.includes("Can't reach database")) {
+          console.log('⚠️  База данных недоступна. Пропускаем синхронизацию.')
+          console.log('ℹ️  База данных будет синхронизирована при первом запросе.')
+          // Продолжаем сборку без ошибки
+        } else {
+          // Если это другая ошибка, выбрасываем её
+          throw dbPushError
+        }
+      }
+    }
   }
 }
 
