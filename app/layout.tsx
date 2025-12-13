@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
 import { Providers } from './providers'
@@ -12,12 +12,15 @@ export const metadata: Metadata = {
   title: 'Алихан - Портфолио и Школьный Парламент',
   description: 'Личное портфолио и система управления школьным парламентом',
   manifest: '/manifest.json',
-  themeColor: '#6366f1',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
     title: 'SCH1',
   },
+}
+
+export const viewport: Viewport = {
+  themeColor: '#6366f1',
 }
 
 export default function RootLayout({

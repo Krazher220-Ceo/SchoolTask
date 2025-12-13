@@ -1,4 +1,5 @@
 import React from 'react'
+import Image from 'next/image'
 
 interface VisualEffects {
   nicknameColor: string | null
@@ -89,10 +90,13 @@ export function AvatarDisplay({ avatar, name, visualEffects, size = 'md', classN
     <div className={`relative ${sizeClasses[size]} ${className}`}>
       <div className={`absolute inset-0 rounded-full ${getBorderClass(visualEffects?.avatarBorder || null)} ${borderSize[size]}`}></div>
       {avatar ? (
-        <img
+        <Image
           src={avatar}
           alt={name}
+          width={size === 'sm' ? 32 : size === 'md' ? 48 : 64}
+          height={size === 'sm' ? 32 : size === 'md' ? 48 : 64}
           className="w-full h-full rounded-full object-cover"
+          unoptimized
         />
       ) : (
         <div className="w-full h-full rounded-full bg-gray-200 flex items-center justify-center text-gray-500">

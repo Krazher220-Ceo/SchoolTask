@@ -3,6 +3,7 @@ import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Trophy, Award, TrendingUp, ArrowLeft, Users } from 'lucide-react'
 import { ministryNames } from '@/lib/utils'
 
@@ -209,7 +210,7 @@ export default async function RatingsPage() {
                       <div className="relative w-20 h-20 mx-auto mb-3">
                         <div className="absolute inset-0 rounded-full bg-gray-200 border-4 border-gray-400"></div>
                         {top3[1].avatar && (
-                          <img src={top3[1].avatar} alt={top3[1].name} className="w-full h-full rounded-full object-cover" />
+                          <Image src={top3[1].avatar} alt={top3[1].name} width={120} height={120} className="w-full h-full rounded-full object-cover" unoptimized />
                         )}
                         {top3[1].visualEffects?.avatarBorder && (
                           <div className={`absolute inset-0 rounded-full border-4 ${top3[1].visualEffects.avatarBorder === 'pulse' ? 'border-gray-400 animate-pulse' : top3[1].visualEffects.avatarBorder === 'crown' ? 'border-yellow-400' : 'border-gray-400'}`}></div>
@@ -238,7 +239,7 @@ export default async function RatingsPage() {
                       <div className="relative w-24 h-24 mx-auto mb-4">
                         <div className="absolute inset-0 rounded-full bg-yellow-200 border-4 border-yellow-500"></div>
                         {top3[0].avatar && (
-                          <img src={top3[0].avatar} alt={top3[0].name} className="w-full h-full rounded-full object-cover" />
+                          <Image src={top3[0].avatar} alt={top3[0].name} width={140} height={140} className="w-full h-full rounded-full object-cover" unoptimized />
                         )}
                         {top3[0].visualEffects?.avatarBorder && (
                           <div className={`absolute inset-0 rounded-full border-4 ${top3[0].visualEffects.avatarBorder === 'pulse' ? 'border-yellow-500 animate-pulse' : top3[0].visualEffects.avatarBorder === 'crown' ? 'border-yellow-600' : 'border-yellow-500'}`}></div>
@@ -267,7 +268,7 @@ export default async function RatingsPage() {
                       <div className="relative w-20 h-20 mx-auto mb-3">
                         <div className="absolute inset-0 rounded-full bg-orange-200 border-4 border-orange-400"></div>
                         {top3[2].avatar && (
-                          <img src={top3[2].avatar} alt={top3[2].name} className="w-full h-full rounded-full object-cover" />
+                          <Image src={top3[2].avatar} alt={top3[2].name} width={100} height={100} className="w-full h-full rounded-full object-cover" unoptimized />
                         )}
                         {top3[2].visualEffects?.avatarBorder && (
                           <div className={`absolute inset-0 rounded-full border-4 ${top3[2].visualEffects.avatarBorder === 'pulse' ? 'border-orange-400 animate-pulse' : top3[2].visualEffects.avatarBorder === 'crown' ? 'border-orange-500' : 'border-orange-400'}`}></div>
@@ -310,7 +311,7 @@ export default async function RatingsPage() {
                       <div className="relative">
                         {user.avatar && (
                           <div className="relative w-10 h-10 rounded-full overflow-hidden mr-3 inline-block">
-                            <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+                            <Image src={user.avatar} alt={user.name} width={40} height={40} className="w-full h-full object-cover" unoptimized />
                             {user.visualEffects?.avatarBorder && (
                               <div className={`absolute inset-0 rounded-full border-2 ${user.visualEffects.avatarBorder === 'pulse' ? 'border-gray-400 animate-pulse' : user.visualEffects.avatarBorder === 'crown' ? 'border-yellow-400' : 'border-gray-400'}`}></div>
                             )}

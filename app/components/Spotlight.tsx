@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { Star, User } from 'lucide-react'
 import Link from 'next/link'
+import Image from 'next/image'
 
 interface SpotlightData {
   id: string
@@ -68,10 +69,13 @@ export default function Spotlight() {
 
         <div className="flex items-center space-x-4 mb-4">
           {spotlight.user.avatar ? (
-            <img
+            <Image
               src={spotlight.user.avatar}
               alt={spotlight.user.name}
+              width={64}
+              height={64}
               className="w-16 h-16 rounded-full border-4 border-white/50 object-cover"
+              unoptimized
             />
           ) : (
             <div className="w-16 h-16 rounded-full border-4 border-white/50 bg-white/20 flex items-center justify-center">
