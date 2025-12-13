@@ -1,5 +1,5 @@
 {
-  "buildCommand": "npx prisma generate && npx prisma migrate deploy || (npx prisma migrate resolve --applied 20251209055319_init && npx prisma migrate deploy) && npm run build",
+  "buildCommand": "npx prisma generate && (npx prisma migrate deploy || (npx prisma migrate resolve --rolled-back 20251209155927_add_telegram_link_code && npx prisma migrate resolve --applied 20251215120000_add_shop_gamification && npx prisma migrate resolve --applied 20251215130000_add_all_gamification_systems && npx prisma migrate deploy)) && npm run build",
   "devCommand": "npm run dev",
   "installCommand": "npm install --include=dev",
   "framework": "nextjs",
