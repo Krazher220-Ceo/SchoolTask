@@ -191,6 +191,13 @@ CREATE INDEX IF NOT EXISTS "Recommendation_score_idx" ON "Recommendation"("score
 
 CREATE INDEX IF NOT EXISTS "Task_guildId_idx" ON "Task"("guildId");
 
--- Add foreign key for Task.guildId
-ALTER TABLE "Task" ADD CONSTRAINT IF NOT EXISTS "Task_guildId_fkey" FOREIGN KEY ("guildId") REFERENCES "Guild" ("id") ON DELETE SET NULL ON UPDATE CASCADE;
+-- Add foreign key for Task.guildId (only if constraint doesn't exist)
+DO $$ 
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'Task_guildId_fkey'
+  ) THEN
+    ALTER TABLE "Task" ADD CONSTRAINT "Task_guildId_fkey" FOREIGN KEY ("guildId") REFERENCES "Guild" ("id") ON DELETE SET NULL ON UPDATE CASCADE;
+  END IF;
+END $$;
 
