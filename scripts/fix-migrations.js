@@ -22,6 +22,7 @@ try {
   execSync('npx prisma migrate deploy', { stdio: 'inherit' })
   console.log('✅ Все миграции применены успешно!')
 } catch (error) {
+  // Получаем список провалившихся миграций из вывода ошибки
   const errorOutput = error.stdout?.toString() || error.stderr?.toString() || ''
   
   // Если база данных недоступна, просто пропускаем миграции
@@ -31,10 +32,8 @@ try {
     // Выходим без ошибки, чтобы сборка продолжилась
     process.exit(0)
   }
-  console.log('⚠️  Обнаружены провалившиеся миграции, разрешаем...')
   
-  // Получаем список провалившихся миграций из вывода ошибки
-  const errorOutput = error.stdout?.toString() || error.stderr?.toString() || ''
+  console.log('⚠️  Обнаружены провалившиеся миграции, разрешаем...')
   
   // Ищем провалившиеся миграции в выводе
   const failedMigrationMatch = errorOutput.match(/The `(\d+_\w+)` migration.*failed/)
