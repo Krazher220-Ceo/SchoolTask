@@ -1,6 +1,8 @@
 import Link from 'next/link'
 import { ArrowRight, Users, Calendar, Lightbulb, Trophy } from 'lucide-react'
 import { prisma } from '@/lib/prisma'
+import FeatureCard from './components/FeatureCard'
+import { motion } from 'framer-motion'
 
 export const dynamic = 'force-dynamic'
 
