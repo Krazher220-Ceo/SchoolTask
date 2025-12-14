@@ -2,22 +2,8 @@ import { redirect } from 'next/navigation'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import { getLevelFromXP } from '@/lib/utils'
-import Link from 'next/link'
-import Image from 'next/image'
-import { 
-  Trophy, 
-  Target, 
-  TrendingUp, 
-  Calendar,
-  CheckCircle,
-  Clock,
-  Award,
-  Users,
-  ArrowRight,
-  MessageCircle
-} from 'lucide-react'
 
+// Эта страница просто редиректит на соответствующий дашборд
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions)
   
@@ -29,31 +15,26 @@ export default async function DashboardPage() {
     where: { id: session.user.id },
     include: {
       parliamentMember: true,
-      taskReports: {
-        orderBy: {
-          createdAt: 'desc',
-        },
-        take: 5,
-        include: {
-          task: {
-            select: {
-              title: true,
-            },
-          },
-        },
-      },
-      xpHistory: {
-        orderBy: {
-          createdAt: 'desc',
-        },
-        take: 10,
-      },
     },
   })
 
   if (!user) {
     redirect('/sch1/login')
   }
+
+  // Администраторы идут на админ-панель
+  if (session.user.role === 'ADMIN') {
+    redirect('/sch1/admin')
+  }
+
+  // Парламентарии идут на дашборд парламента
+  if (user.parliamentMember) {
+    redirect('/sch1/parliament/dashboard')
+  }
+
+  // Ученики идут на дашборд ученика
+  redirect('/sch1/students/dashboard')
+}
 
   const member = user.parliamentMember
   const { level, rank, nextLevelXP } = member 

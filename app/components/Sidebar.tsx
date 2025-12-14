@@ -2,44 +2,50 @@
 
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
-import { useSession } from 'next-auth/react'
+import { useSession, signOut } from 'next-auth/react'
 import { useEffect, useState } from 'react'
+import Image from 'next/image'
 
 export default function Sidebar() {
   const pathname = usePathname()
   const { data: session } = useSession()
   
   const userRole = session?.user?.role || 'STUDENT'
+  const isParliament = !!(session?.user as any)?.parliamentMember
   
   const studentMenu = [
+    { icon: '🏠', label: 'Главная', href: '/sch1' },
     { icon: '📊', label: 'Дашборд', href: '/sch1/students/dashboard' },
-    { icon: '📝', label: 'Задачи', href: '/sch1/tasks', badge: null },
+    { icon: '📝', label: 'Задачи', href: '/sch1/students' },
     { icon: '🏆', label: 'Рейтинг', href: '/sch1/ratings' },
-    { icon: '🎯', label: 'Квесты', href: '/sch1/students/quests', badge: null },
+    { icon: '🎯', label: 'Квесты', href: '/sch1/students/quests' },
     { icon: '🛒', label: 'Магазин', href: '/sch1/shop' },
-    { icon: '👥', label: 'Гильдии', href: '/sch1/guilds' },
-    { icon: '📜', label: 'Портфолио', href: '/portfolio' },
-    { icon: '⚙️', label: 'Настройки', href: '/sch1/settings' }
+    { icon: '🎮', label: 'Геймификация', href: '/sch1/game' },
   ]
 
   const parliamentMenu = [
+    { icon: '🏠', label: 'Главная', href: '/sch1' },
     { icon: '💼', label: 'Парламент', href: '/sch1/parliament/dashboard' },
-    ...studentMenu
+    { icon: '📝', label: 'Задачи', href: '/sch1/tasks' },
+    { icon: '🏆', label: 'Рейтинг', href: '/sch1/ratings' },
+    { icon: '🎯', label: 'Квесты', href: '/sch1/students/quests' },
+    { icon: '🛒', label: 'Магазин', href: '/sch1/shop' },
+    { icon: '🎮', label: 'Геймификация', href: '/sch1/game' },
   ]
 
   const adminMenu = [
+    { icon: '🏠', label: 'Главная', href: '/sch1' },
     { icon: '📊', label: 'Обзор', href: '/sch1/admin' },
     { icon: '👥', label: 'Пользователи', href: '/sch1/admin/users' },
     { icon: '📝', label: 'Задачи', href: '/sch1/admin/tasks' },
     { icon: '🏆', label: 'Рейтинги', href: '/sch1/admin/leaderboards' },
-    { icon: '📜', label: 'Сертификаты', href: '/sch1/admin/certificates' },
-    { icon: '🛒', label: 'Магазин', href: '/sch1/admin/shop' },
-    { icon: '🤖', label: 'AI', href: '/sch1/admin/ai' },
+    { icon: '📄', label: 'Отчёты', href: '/sch1/admin/reports' },
+    { icon: '📢', label: 'Регистрации', href: '/sch1/admin/registrations' },
     { icon: '⚙️', label: 'Настройки', href: '/sch1/admin/settings' }
   ]
 
   const menu = userRole === 'ADMIN' ? adminMenu :
-                userRole === 'PARLIAMENT' ? parliamentMenu :
+                isParliament ? parliamentMenu :
                 studentMenu
 
   return (
@@ -95,10 +101,14 @@ export default function Sidebar() {
           </div>
           <div className="flex-1">
             <div className="font-medium text-sm">{session?.user?.name || 'Пользователь'}</div>
-            <div className="text-xs text-gray-600">{session?.user?.class || ''}</div>
+            <div className="text-xs text-gray-600">{(session?.user as any)?.fullClass || ''}</div>
           </div>
-          <button className="text-gray-400 hover:text-gray-600">
-            ⋮
+          <button 
+            onClick={() => signOut({ callbackUrl: '/sch1' })}
+            className="text-gray-400 hover:text-red-600 transition-colors"
+            title="Выйти"
+          >
+            🚪
           </button>
         </div>
       </div>

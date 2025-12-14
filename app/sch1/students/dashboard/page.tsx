@@ -79,14 +79,32 @@ export default function StudentDashboard() {
     fetchUserData()
   }, [session, status, router])
 
-  if (loading || !user) {
-    return <div className="flex items-center justify-center h-screen">Загрузка...</div>
+  if (status === 'loading' || loading) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Загрузка...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!user) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-gray-50">
+        <div className="text-center">
+          <p className="text-gray-600 mb-4">Не удалось загрузить данные</p>
+          <Link href="/sch1" className="text-indigo-600 hover:underline">Вернуться на главную</Link>
+        </div>
+      </div>
+    )
   }
 
   const progressPercent = (user.ep / (user.ep + user.epToNextRank)) * 100
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       {/* Profile Header Card */}
       <div className="bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 text-white p-8">
         <div className="max-w-7xl mx-auto">

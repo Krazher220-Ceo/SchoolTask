@@ -150,19 +150,15 @@ export default async function ParliamentHome() {
               </Link>
             </nav>
             {session ? (
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3">
                 <span className="text-sm text-gray-600 hidden sm:block">{session.user.name}</span>
                 <Link
-                  href="/sch1/dashboard"
-                  className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+                  href={session.user.role === 'ADMIN' ? '/sch1/admin' : 
+                        (session.user as any).parliamentMember ? '/sch1/parliament/dashboard' : 
+                        '/sch1/students/dashboard'}
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
                 >
                   Личный кабинет
-                </Link>
-                <Link
-                  href="/api/auth/signout"
-                  className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
-                >
-                  Выйти
                 </Link>
               </div>
             ) : (
