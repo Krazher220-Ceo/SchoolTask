@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
+import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
 
 interface User {
   name: string
@@ -18,26 +20,74 @@ interface User {
 }
 
 export default function ParliamentDashboard() {
+  const { data: session, status } = useSession()
+  const router = useRouter()
   const [user, setUser] = useState<User | null>(null)
   const [mode, setMode] = useState<'school' | 'parliament'>('parliament')
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // TODO: Загрузить данные пользователя из API
-    setUser({
-      name: 'Алихан',
-      ministry: 'Информация',
-      role: 'Министр',
-      xp: 4200,
-      xpToNextRank: 800,
-      parliamentRank: 'Министр-Эксперт',
-      parliamentRankIcon: '🏅',
-      ep: 3800,
-      schoolRank: 'Лидер Мнений',
-      schoolPlace: 12
-    })
-    setLoading(false)
-  }, [])
+    if (status === 'unauthenticated') {
+      router.push('/sch1/login')
+      return
+    }
+
+    if (status === 'loading') {
+      return
+    }
+
+    // Загружаем данные пользователя из API
+    async function fetchUserData() {
+      try {
+        const response = await fetch('/api/users/me')
+        if (response.ok) {
+          const userData = await response.json()
+          
+          // Получаем данные министерства
+          const ministryNames: Record<string, string> = {
+            'LAW_AND_ORDER': 'Права и порядка',
+            'INFORMATION': 'Информации',
+            'SPORT': 'Спорта',
+            'CARE': 'Заботы'
+          }
+
+          setUser({
+            name: userData.name || 'Пользователь',
+            ministry: userData.ministry ? ministryNames[userData.ministry] || userData.ministry : 'Не указано',
+            role: 'Министр', // TODO: Получить из parliamentMember
+            xp: userData.xp || 0,
+            xpToNextRank: 800, // TODO: Вычислить на основе ранга
+            parliamentRank: userData.parliamentRank || 'Новичок Парламента',
+            parliamentRankIcon: '🏅',
+            ep: userData.ep || 0,
+            schoolRank: userData.rank || 'Наблюдатель',
+            schoolPlace: 0 // TODO: Получить из рейтинга
+          })
+        }
+      } catch (error) {
+        console.error('Ошибка загрузки данных пользователя:', error)
+        // Используем данные из сессии как fallback
+        if (session?.user) {
+          setUser({
+            name: session.user.name || 'Пользователь',
+            ministry: 'Не указано',
+            role: 'Член',
+            xp: 0,
+            xpToNextRank: 500,
+            parliamentRank: 'Новичок Парламента',
+            parliamentRankIcon: '👤',
+            ep: 0,
+            schoolRank: 'Наблюдатель',
+            schoolPlace: 0
+          })
+        }
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchUserData()
+  }, [session, status, router])
 
   if (loading || !user) {
     return <div className="flex items-center justify-center h-screen">Загрузка...</div>

@@ -12,7 +12,7 @@ export default function Sidebar() {
   const userRole = session?.user?.role || 'STUDENT'
   
   const studentMenu = [
-    { icon: '📊', label: 'Дашборд', href: '/sch1/dashboard' },
+    { icon: '📊', label: 'Дашборд', href: '/sch1/students/dashboard' },
     { icon: '📝', label: 'Задачи', href: '/sch1/tasks', badge: null },
     { icon: '🏆', label: 'Рейтинг', href: '/sch1/ratings' },
     { icon: '🎯', label: 'Квесты', href: '/sch1/students/quests', badge: null },
@@ -23,7 +23,7 @@ export default function Sidebar() {
   ]
 
   const parliamentMenu = [
-    { icon: '💼', label: 'Парламент', href: '/sch1/parliament' },
+    { icon: '💼', label: 'Парламент', href: '/sch1/parliament/dashboard' },
     ...studentMenu
   ]
 
