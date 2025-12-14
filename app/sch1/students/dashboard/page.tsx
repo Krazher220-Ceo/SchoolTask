@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
+import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
 
 interface User {
   name: string
@@ -18,25 +20,64 @@ interface User {
 }
 
 export default function StudentDashboard() {
+  const { data: session, status } = useSession()
+  const router = useRouter()
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // TODO: Загрузить данные пользователя из API
-    setUser({
-      name: 'Алихан',
-      class: '9А',
-      rank: 'Лидер Мнений',
-      rankIcon: '💫',
-      ep: 3800,
-      epToNextRank: 200,
-      xp: 0,
-      level: 5,
-      streak: 23,
-      achievements: 45
-    })
-    setLoading(false)
-  }, [])
+    if (status === 'unauthenticated') {
+      router.push('/sch1/login')
+      return
+    }
+
+    if (status === 'loading') {
+      return
+    }
+
+    // Загружаем данные пользователя из API
+    async function fetchUserData() {
+      try {
+        const response = await fetch('/api/users/me')
+        if (response.ok) {
+          const userData = await response.json()
+          setUser({
+            name: userData.name || 'Пользователь',
+            class: userData.fullClass || userData.class || '',
+            rank: userData.rank || 'Наблюдатель',
+            rankIcon: userData.rankIcon || '👤',
+            ep: userData.ep || 0,
+            epToNextRank: userData.epToNextRank || 300,
+            xp: userData.xp || 0,
+            level: Math.floor((userData.ep || 0) / 500) + 1,
+            streak: userData.streak || 0,
+            achievements: userData.achievements || 0
+          })
+        }
+      } catch (error) {
+        console.error('Ошибка загрузки данных пользователя:', error)
+        // Используем данные из сессии как fallback
+        if (session?.user) {
+          setUser({
+            name: session.user.name || 'Пользователь',
+            class: session.user.class || '',
+            rank: 'Наблюдатель',
+            rankIcon: '👤',
+            ep: 0,
+            epToNextRank: 300,
+            xp: 0,
+            level: 1,
+            streak: 0,
+            achievements: 0
+          })
+        }
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchUserData()
+  }, [session, status, router])
 
   if (loading || !user) {
     return <div className="flex items-center justify-center h-screen">Загрузка...</div>
